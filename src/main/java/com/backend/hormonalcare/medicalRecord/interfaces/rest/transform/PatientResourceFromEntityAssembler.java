@@ -6,7 +6,7 @@ import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.PatientR
 public class PatientResourceFromEntityAssembler {
     public static PatientResource toResourceFromEntity(Patient entity){
         return new PatientResource(
-                entity.getTypeofblood(),
+                entity.getTypeOfBlood(),
                 entity.getPatientRecordId(),
                 entity.getProfileId(),
                 entity.getDoctor());

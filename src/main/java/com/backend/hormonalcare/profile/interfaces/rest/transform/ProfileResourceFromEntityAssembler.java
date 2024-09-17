@@ -8,9 +8,7 @@ public class ProfileResourceFromEntityAssembler {
         return new ProfileResource(
                 entity.getName().getFullName(),
                 entity.getGender().getGender(),
-                entity.getAge().age(),
-                entity.getPhoneNumber(),
-                entity.getEmail().email(),
+                entity.getPhoneNumber().getPhoneNumber(),
                 entity.getImage(),
                 entity.getBirthday().birthday(),
                 entity.getUser().getId()

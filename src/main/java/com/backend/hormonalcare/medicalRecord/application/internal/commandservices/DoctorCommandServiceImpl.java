@@ -5,7 +5,6 @@ import com.backend.hormonalcare.medicalRecord.domain.events.DoctorCreatedEvent;
 import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.Doctor;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.CreateDoctorCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdateDoctorCommand;
-import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.Certification;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.ProfessionalIdentificationNumber;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.SubSpecialty;
 import com.backend.hormonalcare.medicalRecord.domain.services.DoctorCommandService;
@@ -34,16 +33,14 @@ public class DoctorCommandServiceImpl implements DoctorCommandService {
     @Override
     public Optional<Doctor> handle(CreateDoctorCommand command) {
 
-        var profileId = externalProfileService.fetchProfileIdByEmail(command.email());
+        var profileId = externalProfileService.fetchProfileIdByPhoneNumber(command.phoneNumber());
         if (profileId.isEmpty()){
             profileId = externalProfileService.createProfile(
                     command.firstName(),
                     command.lastName(),
                     command.gender(),
-                    command.age(),
                     command.phoneNumber(),
-                    command.email(),
-                    command.Image(),
+                    command.image(),
                     command.birthday(),
                     command.userId());
         } else{
@@ -59,9 +56,6 @@ public class DoctorCommandServiceImpl implements DoctorCommandService {
         var doctor = new Doctor(
                 new ProfessionalIdentificationNumber(command.professionalIdentificationNumber()),
                 new SubSpecialty(command.subSpecialty()),
-                new Certification(command.certification()),
-                command.appointmentFee(),
-                command.subscriptionId(),
                 profileId.get()
         );
         doctorRepository.save(doctor);

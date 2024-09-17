@@ -9,10 +9,8 @@ public class CreateProfileCommandFromResourceAssembler {
                 resource.firstName(),
                 resource.lastName(),
                 resource.gender(),
-                resource.age(),
                 resource.phoneNumber(),
-                resource.email(),
-                resource.Image(),
+                resource.image(),
                 resource.birthday(),
                 resource.userId()
         );

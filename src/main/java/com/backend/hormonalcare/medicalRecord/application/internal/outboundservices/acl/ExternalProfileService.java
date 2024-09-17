@@ -13,31 +13,25 @@ public class ExternalProfileService {
     public ExternalProfileService(ProfileContextFacade profilesContextFacade) {
         this.profilesContextFacade = profilesContextFacade;
     }
-
-    public Optional<ProfileId> fetchProfileIdByEmail(String email) {
-        var profileId = profilesContextFacade.fetchProfileIdByEmail(email);
+    public Optional<ProfileId> fetchProfileIdByPhoneNumber(String phoneNumber) {
+        var profileId = profilesContextFacade.fetchProfileIdByPhoneNumber(phoneNumber);
         if (profileId == 0L) return Optional.empty();
         return Optional.of(new ProfileId(profileId));
     }
-
     public Optional<ProfileId> createProfile(
             String firstName,
             String lastName,
             String gender,
-            Integer age,
             String phoneNumber,
-            String email,
-            String Image,
+            String image,
             Date birthday,
             Long userId) {
         var profileId = profilesContextFacade.createProfile(
                 firstName,
                 lastName,
                 gender,
-                age,
                 phoneNumber,
-                email,
-                Image,
+                image,
                 birthday,
                 userId);
         if (profileId == 0L) {

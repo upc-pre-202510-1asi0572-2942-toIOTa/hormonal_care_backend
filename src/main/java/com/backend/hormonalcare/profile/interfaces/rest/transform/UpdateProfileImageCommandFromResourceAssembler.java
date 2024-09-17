@@ -7,7 +7,7 @@ public class UpdateProfileImageCommandFromResourceAssembler {
     public static UpdateProfileImageCommand toCommandFromResource(Long id, UpdateProfileImageResource resource){
         return new UpdateProfileImageCommand(
                 id,
-                resource.Image()
+                resource.image()
         );
     }
 }

@@ -8,9 +8,6 @@ public class DoctorResourceFromEntityAssembler {
         return new DoctorResource(
             entity.getProfessionalIdentificationNumber().professionalIdentificationNumber(),
             entity.getSubSpecialty().subSpecialty(),
-            entity.getCertification().certification(),
-            entity.getAppointmentFee(),
-            entity.getSubscriptionId(),
             entity.getProfileId(),
                 entity.getDoctorRecordId()
         );

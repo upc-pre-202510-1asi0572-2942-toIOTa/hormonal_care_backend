@@ -9,9 +9,6 @@ public record Gender(String gender) {
         if (gender == null || gender.isBlank()) {
             throw new IllegalArgumentException("Gender cannot be null or empty");
         }
-        if (!gender.equals("Male") && !gender.equals("Female")) {
-            throw new IllegalArgumentException("Gender must be 'Male' or 'Female'");
-        }
     }
     public String getGender(){
         return gender;

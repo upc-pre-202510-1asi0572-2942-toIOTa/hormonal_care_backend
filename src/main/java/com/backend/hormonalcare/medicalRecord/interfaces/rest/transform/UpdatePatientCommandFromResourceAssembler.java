@@ -7,7 +7,7 @@ public class UpdatePatientCommandFromResourceAssembler {
     public static UpdatePatientCommand toCommandFromResource(Long id, UpdatePatientResource resource) {
         return new UpdatePatientCommand(
                 id,
-                resource.typeofblood()
+                resource.typeOfBlood()
         );
     }
 }

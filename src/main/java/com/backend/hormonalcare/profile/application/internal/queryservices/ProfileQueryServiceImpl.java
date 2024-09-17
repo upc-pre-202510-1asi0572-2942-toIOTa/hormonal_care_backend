@@ -2,7 +2,6 @@ package com.backend.hormonalcare.profile.application.internal.queryservices;
 
 import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
 import com.backend.hormonalcare.profile.domain.model.queries.*;
-import com.backend.hormonalcare.profile.domain.model.queries.*;
 import com.backend.hormonalcare.profile.domain.services.ProfileQueryService;
 import com.backend.hormonalcare.profile.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
@@ -33,8 +32,8 @@ public class ProfileQueryServiceImpl implements ProfileQueryService {
     }
 
     @Override
-    public Optional<Profile> handle(GetProfileByEmailQuery query) {
-        return profileRepository.findByEmail(query.email());
+    public Optional<Profile> handle(GetProfileByPhoneNumberQuery query) {
+        return profileRepository.findByPhoneNumber(query.phoneNumber());
     }
 
     @Override

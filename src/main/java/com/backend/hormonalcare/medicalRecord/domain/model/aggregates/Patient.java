@@ -13,7 +13,7 @@ import lombok.Getter;
 @Entity
 public class Patient extends AuditableAbstractAggregateRoot<Patient> {
 
-    private String typeofblood;
+    private String typeOfBlood;
 
     @Embedded
     @Column(name = "patientRecord_id")
@@ -28,31 +28,31 @@ public class Patient extends AuditableAbstractAggregateRoot<Patient> {
 
 
     public Patient() {
-        this.typeofblood = "";
+        this.typeOfBlood = "";
         this.patientRecordId = new PatientRecordId();
         this.doctor = null;
     }
-    public Patient(Long profileId, String typeofblood, Long doctor) {
+    public Patient(Long profileId, String typeOfBlood, Long doctor) {
         this.profileId = new ProfileId(profileId);
-        this.typeofblood = typeofblood;
+        this.typeOfBlood = typeOfBlood;
         this.patientRecordId = new PatientRecordId();
         this.doctor = doctor;
     }
-    public Patient(ProfileId profileId, String typeofblood, Long doctor) {
+    public Patient(ProfileId profileId, String typeOfBlood, Long doctor) {
         this.profileId = profileId;
-        this.typeofblood = typeofblood;
+        this.typeOfBlood = typeOfBlood;
         this.patientRecordId = new PatientRecordId();
         this.doctor = doctor;
     }
 
     public Patient(CreatePatientCommand command, ProfileId profileId, Long doctor) {
-        this.typeofblood = command.typeofblood();
+        this.typeOfBlood = command.typeOfBlood();
         this.profileId = profileId;
         this.patientRecordId = new PatientRecordId();
         this.doctor = doctor;
     }
-    public Patient updateInformation(String typeofblood) {
-        this.typeofblood = typeofblood;
+    public Patient updateInformation(String typeOfBlood) {
+        this.typeOfBlood = typeOfBlood;
 
         return this;
     }

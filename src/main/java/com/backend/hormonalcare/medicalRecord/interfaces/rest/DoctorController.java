@@ -75,12 +75,12 @@ public class DoctorController {
         return ResponseEntity.ok(doctorResource);
     }
 
-    @PutMapping("/{doctorId}")
-    public ResponseEntity<DoctorResource> updateDoctor(@PathVariable Long doctorId, @RequestBody UpdateDoctorResource updateDoctorResource){
-        var updateDoctorCommand = new UpdateDoctorCommand(doctorId, updateDoctorResource.appointmentFee(), updateDoctorResource.subscriptionId());
-        var updatedDoctor = doctorCommandService.handle(updateDoctorCommand);
-        if(updatedDoctor.isEmpty()) return ResponseEntity.notFound().build();
-        var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(updatedDoctor.get());
-        return ResponseEntity.ok(doctorResource);
-    }
+    //@PutMapping("/{doctorId}")
+    //public ResponseEntity<DoctorResource> updateDoctor(@PathVariable Long doctorId, @RequestBody UpdateDoctorResource updateDoctorResource){
+    //    var updateDoctorCommand = new UpdateDoctorCommand(doctorId, updateDoctorResource.appointmentFee(), updateDoctorResource.subscriptionId());
+    //    var updatedDoctor = doctorCommandService.handle(updateDoctorCommand);
+    //    if(updatedDoctor.isEmpty()) return ResponseEntity.notFound().build();
+    //    var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(updatedDoctor.get());
+    //    return ResponseEntity.ok(doctorResource);
+    //}
 }

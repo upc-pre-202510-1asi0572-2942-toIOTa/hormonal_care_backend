@@ -6,7 +6,7 @@ import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileImageCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfilePhoneNumberCommand;
-import com.backend.hormonalcare.profile.domain.model.valueobjects.Email;
+import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import org.springframework.stereotype.Service;
@@ -24,9 +24,9 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
     @Override
     public Optional<Profile> handle(CreateProfileCommand command) {
         User user = userRepository.findById(command.userId()).orElseThrow(() -> new IllegalArgumentException("User with id " + command.userId() + " does not exist"));
-        Email email = new Email(command.email());
-        if (profileRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Profile with email " + command.email() + " already exists");
+        PhoneNumber phoneNumber = new PhoneNumber(command.phoneNumber());
+        if (profileRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException("Profile with phone number " + command.phoneNumber() + " already exists");
         }
         // Check if the user already has a profile
         if (profileRepository.existsByUserId(command.userId())) {
@@ -41,14 +41,15 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
     public Optional<Profile> handle(UpdateProfilePhoneNumberCommand command) {
         var id = command.id();
         if (!profileRepository.existsById(id))
-            throw new IllegalArgumentException("Profile with id "+ id +" does not exist");
+            throw new IllegalArgumentException("Profile with id " + id + " does not exist");
         var result = profileRepository.findById(id);
         var profileToUpdate = result.get();
         try {
-            var updateProfile = profileRepository.save(profileToUpdate.upsetPhoneNumber(command.phoneNumber()));
+            PhoneNumber phoneNumber = new PhoneNumber(command.phoneNumber());
+            var updateProfile = profileRepository.save(profileToUpdate.upsetPhoneNumber(phoneNumber));
             return Optional.of(updateProfile);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error updating profile with id "+ id);
+            throw new IllegalArgumentException("Error updating profile with id " + id);
         }
     }
 

@@ -9,13 +9,11 @@ public class CreatePatientCommandFromResourceAssembler {
                 resource.firstName(),
                 resource.lastName(),
                 resource.gender(),
-                resource.age(),
                 resource.phoneNumber(),
-                resource.email(),
-                resource.Image(),
+                resource.image(),
                 resource.birthday(),
                 resource.userId(),
-                resource.typeofblood(),
+                resource.typeOfBlood(),
                 resource.doctorId()
         );
     }

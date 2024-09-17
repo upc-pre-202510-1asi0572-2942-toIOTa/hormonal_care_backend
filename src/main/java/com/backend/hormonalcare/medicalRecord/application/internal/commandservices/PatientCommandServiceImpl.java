@@ -36,16 +36,14 @@ public class PatientCommandServiceImpl implements PatientCommandService {
         } else if (!doctorRepository.existsById(doctorId)) {
             throw new IllegalArgumentException("Doctor with id " + doctorId + " does not exist");
         }
-        var profileId = externalProfileService.fetchProfileIdByEmail(command.email());
+        var profileId = externalProfileService.fetchProfileIdByPhoneNumber(command.phoneNumber());
         if (profileId.isEmpty()){
             profileId = externalProfileService.createProfile(
                     command.firstName(),
                     command.lastName(),
                     command.gender(),
-                    command.age(),
                     command.phoneNumber(),
-                    command.email(),
-                    command.Image(),
+                    command.image(),
                     command.birthday(),
                     command.userId());
         } else{
@@ -60,7 +58,7 @@ public class PatientCommandServiceImpl implements PatientCommandService {
         if (profileId.isEmpty()) throw new IllegalArgumentException("Unable to create profile");
 
 
-        var patient = new Patient(profileId.get(),command.typeofblood(), doctorId);
+        var patient = new Patient(profileId.get(),command.typeOfBlood(), doctorId);
         patientRepository.save(patient);
         eventPublisher.publishEvent(new PatientCreatedEvent(patient.getId()));
         return Optional.of(patient);
@@ -75,7 +73,7 @@ public class PatientCommandServiceImpl implements PatientCommandService {
         var result = patientRepository.findById(id);
         var patientToUpdate = result.get();
         try {
-            var updatedPatient = patientRepository.save(patientToUpdate.updateInformation(command.typeofblood()));
+            var updatedPatient = patientRepository.save(patientToUpdate.updateInformation(command.typeOfBlood()));
             return Optional.of(updatedPatient);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while updating patient: " + e.getMessage());

@@ -17,22 +17,15 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     private PersonName name;
 
     @Embedded
-    private Age age;
-
-    @Embedded
     private Gender gender;
-
-
-    private String phoneNumber;
-
-    @Embedded
-    private Email email;
 
     @Embedded
     private Birthday birthday;
 
+    @Embedded
+    private PhoneNumber phoneNumber;
 
-    private String Image;
+    private String image;
 
     @Getter
     @OneToOne
@@ -40,14 +33,12 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     private User user;
 
 
-    public Profile(PersonName name, Age age, Gender gender, String phoneNumber, Email email, Birthday birthday, String Image, User user) {
+    public Profile(PersonName name, Gender gender, PhoneNumber phoneNumber, Birthday birthday, String image, User user) {
         this.name = name;
-        this.age = age;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
-        this.email = email;
         this.birthday = birthday;
-        this.Image = Image;
+        this.image = image;
         this.user = user;
     }
 
@@ -56,22 +47,20 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
 
     public Profile(CreateProfileCommand command, User user) {
         this.name = new PersonName(command.firstName(), command.lastName());
-        this.age = new Age(command.age());
         this.birthday = new Birthday(command.birthday());
         this.gender = new Gender(command.gender());
-        this.phoneNumber = command.phoneNumber();
-        this.email = new Email(command.email());
-        this.Image = command.Image();
+        this.phoneNumber = new PhoneNumber(command.phoneNumber());
+        this.image = command.image();
         this.user = user;
     }
 
-    public Profile upsetPhoneNumber(String phoneNumber){
+    public Profile upsetPhoneNumber(PhoneNumber phoneNumber){
         this.phoneNumber = phoneNumber;
         return this;
     }
 
-    public Profile upsetImage(String Image){
-        this.Image = Image;
+    public Profile upsetImage(String image){
+        this.image = image;
         return this;
     }
 

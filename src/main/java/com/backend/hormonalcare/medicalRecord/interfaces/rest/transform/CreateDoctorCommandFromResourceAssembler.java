@@ -9,17 +9,12 @@ public class CreateDoctorCommandFromResourceAssembler {
                 resource.firstName(),
                 resource.lastName(),
                 resource.gender(),
-                resource.age(),
                 resource.phoneNumber(),
-                resource.email(),
-                resource.Image(),
+                resource.image(),
                 resource.birthday(),
                 resource.userId(),
                 resource.professionalIdentificationNumber(),
-                resource.subSpecialty(),
-                resource.certification(),
-                resource.appointmentFee(),
-                resource.subscriptionId()
+                resource.subSpecialty()
         );
     }
 }

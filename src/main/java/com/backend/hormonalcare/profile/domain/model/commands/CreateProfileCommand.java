@@ -6,10 +6,8 @@ public record CreateProfileCommand(
         String firstName,
         String lastName,
         String gender,
-        Integer age,
         String phoneNumber,
-        String email,
-        String Image,
+        String image,
         Date birthday,
         Long userId
 ) {
