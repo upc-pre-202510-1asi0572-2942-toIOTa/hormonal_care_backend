@@ -14,6 +14,8 @@ public class CreatePatientCommandFromResourceAssembler {
                 resource.birthday(),
                 resource.userId(),
                 resource.typeOfBlood(),
+                resource.personalHistory(),
+                resource.familyHistory(),
                 resource.doctorId()
         );
     }

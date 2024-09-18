@@ -7,6 +7,8 @@ public class PatientResourceFromEntityAssembler {
     public static PatientResource toResourceFromEntity(Patient entity){
         return new PatientResource(
                 entity.getTypeOfBlood(),
+                entity.getPersonalHistory().personalHistory(),
+                entity.getFamilyHistory().familyHistory(),
                 entity.getPatientRecordId(),
                 entity.getProfileId(),
                 entity.getDoctor());

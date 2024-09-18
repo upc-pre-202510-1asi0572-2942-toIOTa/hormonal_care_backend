@@ -10,5 +10,8 @@ public record UpdatePatientCommand(
         String phoneNumber,
         String image,
         Date birthday,
-        String typeOfBlood) {
+        String typeOfBlood,
+        String personalHistory,
+        String familyHistory
+) {
 }

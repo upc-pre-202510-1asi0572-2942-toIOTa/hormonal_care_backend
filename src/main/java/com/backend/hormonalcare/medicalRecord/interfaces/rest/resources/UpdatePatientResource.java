@@ -9,5 +9,7 @@ public record UpdatePatientResource(
         String phoneNumber,
         String image,
         Date birthday,
-        String typeOfBlood
+        String typeOfBlood,
+        String personalHistory,
+        String familyHistory
 ) { }

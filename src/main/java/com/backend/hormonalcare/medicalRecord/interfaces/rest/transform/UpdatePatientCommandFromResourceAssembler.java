@@ -13,7 +13,9 @@ public class UpdatePatientCommandFromResourceAssembler {
                 resource.phoneNumber(),
                 resource.image(),
                 resource.birthday(),
-                resource.typeOfBlood()
+                resource.typeOfBlood(),
+                resource.personalHistory(),
+                resource.familyHistory()
         );
     }
 }

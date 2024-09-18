@@ -7,14 +7,8 @@ import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.PatientR
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.PatientRecordId;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientCommandService;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientQueryService;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.CreatePatientResource;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.PatientResource;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.UpdatePatientDoctorIdResource;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.UpdatePatientResource;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.CreatePatientCommandFromResourceAssembler;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.PatientResourceFromEntityAssembler;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.UpdatePatientCommandFromResourceAssembler;
-import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.UpdatePatientDoctorIdCommandFromResourceAssembler;
+import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.*;
+import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +78,24 @@ public class PatientController {
     public ResponseEntity<PatientResource> updatePatient(@PathVariable Long patientId, @RequestBody UpdatePatientResource updatePatientResource) {
         var updatePatientCommand = UpdatePatientCommandFromResourceAssembler.toCommandFromResource(patientId, updatePatientResource);
         var updatedPatient = patientCommandService.handle(updatePatientCommand);
+        if (updatedPatient.isEmpty()) return ResponseEntity.badRequest().build();
+        var patientResource = PatientResourceFromEntityAssembler.toResourceFromEntity(updatedPatient.get());
+        return ResponseEntity.ok(patientResource);
+    }
+
+    @PutMapping("/personal-history/{patientId}")
+    public ResponseEntity<PatientResource> updatePatientPersonalHistory(@PathVariable Long patientId, @RequestBody UpdatePersonalHistoryPatientResource updatePersonalHistoryPatientResource) {
+        var updatePersonalHistoryCommand = UpdatePersonalHistoryPatientCommandFromResourceAssembler.toCommandFromResource(patientId, updatePersonalHistoryPatientResource);
+        var updatedPatient = patientCommandService.handle(updatePersonalHistoryCommand);
+        if (updatedPatient.isEmpty()) return ResponseEntity.badRequest().build();
+        var patientResource = PatientResourceFromEntityAssembler.toResourceFromEntity(updatedPatient.get());
+        return ResponseEntity.ok(patientResource);
+    }
+
+    @PutMapping("/family-history/{patientId}")
+    public ResponseEntity<PatientResource> updatePatientFamilyHistory(@PathVariable Long patientId, @RequestBody UpdateFamilyHistoryPatientResource updateFamilyHistoryPatientResource) {
+        var updateFamilyHistoryCommand = UpdateFamilyHistoryPatientCommandFromResourceAssembler.toCommandFromResource(patientId, updateFamilyHistoryPatientResource);
+        var updatedPatient = patientCommandService.handle(updateFamilyHistoryCommand);
         if (updatedPatient.isEmpty()) return ResponseEntity.badRequest().build();
         var patientResource = PatientResourceFromEntityAssembler.toResourceFromEntity(updatedPatient.get());
         return ResponseEntity.ok(patientResource);
