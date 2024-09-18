@@ -12,6 +12,7 @@ import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.DoctorRe
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.UpdateDoctorResource;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.CreateDoctorCommandFromResourceAssembler;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.DoctorResourceFromEntityAssembler;
+import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.UpdateDoctorCommandFromResourceAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -75,12 +76,12 @@ public class DoctorController {
         return ResponseEntity.ok(doctorResource);
     }
 
-    //@PutMapping("/{doctorId}")
-    //public ResponseEntity<DoctorResource> updateDoctor(@PathVariable Long doctorId, @RequestBody UpdateDoctorResource updateDoctorResource){
-    //    var updateDoctorCommand = new UpdateDoctorCommand(doctorId, updateDoctorResource.appointmentFee(), updateDoctorResource.subscriptionId());
-    //    var updatedDoctor = doctorCommandService.handle(updateDoctorCommand);
-    //    if(updatedDoctor.isEmpty()) return ResponseEntity.notFound().build();
-    //    var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(updatedDoctor.get());
-    //    return ResponseEntity.ok(doctorResource);
-    //}
+    @PutMapping("/{doctorId}")
+    public ResponseEntity<DoctorResource> updateDoctor(@PathVariable Long doctorId, @RequestBody UpdateDoctorResource updateDoctorResource){
+        var updateDoctorCommand = UpdateDoctorCommandFromResourceAssembler.toCommandFromResource(doctorId, updateDoctorResource);
+        var updatedDoctor = doctorCommandService.handle(updateDoctorCommand);
+        if(updatedDoctor.isEmpty()) return ResponseEntity.notFound().build();
+        var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(updatedDoctor.get());
+        return ResponseEntity.ok(doctorResource);
+    }
 }

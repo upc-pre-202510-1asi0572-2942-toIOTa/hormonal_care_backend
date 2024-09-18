@@ -40,4 +40,8 @@ public class ExternalProfileService {
         return Optional.of(new ProfileId(profileId));
     }
 
+    public boolean updateProfile(Long profileId, String firstName, String lastName, String gender, String phoneNumber, String image, Date birthday) {
+        return profilesContextFacade.updateProfile(profileId, firstName, lastName, gender, phoneNumber, image, birthday);
+    }
+
 }

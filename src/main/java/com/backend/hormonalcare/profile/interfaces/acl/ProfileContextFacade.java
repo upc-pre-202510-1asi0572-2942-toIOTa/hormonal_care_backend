@@ -1,6 +1,7 @@
 package com.backend.hormonalcare.profile.interfaces.acl;
 
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
+import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByPhoneNumberQuery;
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
@@ -26,6 +27,13 @@ public class ProfileContextFacade {
         if (profile.isEmpty()) return 0L;
         return profile.get().getId();
     }
+
+    public boolean updateProfile(Long profileId, String firstName, String lastName, String gender, String phoneNumber, String image, Date birthday) {
+        var updateProfileCommand = new UpdateProfileCommand(profileId, firstName, lastName, gender, phoneNumber, image, birthday);
+        var updatedProfile = profileCommandService.handle(updateProfileCommand);
+        return updatedProfile.isPresent();
+    }
+
     public Long fetchProfileIdByPhoneNumber(String phoneNumber) {
         var getProfileByPhoneNumberQuery = new GetProfileByPhoneNumberQuery(new PhoneNumber(phoneNumber));
         var profile = profileQueryService.handle(getProfileByPhoneNumberQuery);

@@ -7,8 +7,14 @@ public class UpdateDoctorCommandFromResourceAssembler {
     public static UpdateDoctorCommand toCommandFromResource(Long id, UpdateDoctorResource resource) {
         return new UpdateDoctorCommand(
                 id,
-                resource.appointmentFee(),
-                resource.subscriptionId()
+                resource.firstName(),
+                resource.lastName(),
+                resource.gender(),
+                resource.phoneNumber(),
+                resource.image(),
+                resource.birthday(),
+                resource.professionalIdentificationNumber(),
+                resource.subSpecialty()
         );
     }
 }
