@@ -26,7 +26,7 @@ public class OpenApiConfiguration {
                 .externalDocs(new ExternalDocumentation()
                         .description("ACME hormonal Care Wiki Documentation")
                         .url("https://acme-hormonal-care.wiki.github.io/docs"));
-        // Add Security Scheme
+        /* Add Security Scheme
         final String securitySchemeName = "bearerAuth";
         openApi.addSecurityItem(new SecurityRequirement()
                         .addList(securitySchemeName))
