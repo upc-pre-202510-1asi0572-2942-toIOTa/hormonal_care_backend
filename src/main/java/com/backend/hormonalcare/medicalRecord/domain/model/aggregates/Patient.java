@@ -1,6 +1,7 @@
 package com.backend.hormonalcare.medicalRecord.domain.model.aggregates;
 
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.CreatePatientCommand;
+import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdatePatientCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.PatientRecordId;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.ProfileId;
 import com.backend.hormonalcare.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
@@ -51,10 +52,9 @@ public class Patient extends AuditableAbstractAggregateRoot<Patient> {
         this.patientRecordId = new PatientRecordId();
         this.doctor = doctor;
     }
-    public Patient updateInformation(String typeOfBlood) {
-        this.typeOfBlood = typeOfBlood;
-
-        return this;
+    public void updatePatient(UpdatePatientCommand command, ProfileId profileId) {
+        this.typeOfBlood = command.typeOfBlood();
+        this.profileId = profileId;
     }
     public Patient updateDoctorId(Long doctor) {
         this.doctor = doctor;

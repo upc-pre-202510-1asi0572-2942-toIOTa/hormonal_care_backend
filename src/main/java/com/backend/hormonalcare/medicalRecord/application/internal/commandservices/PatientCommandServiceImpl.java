@@ -6,6 +6,7 @@ import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.Patient;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.CreatePatientCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdatePatientCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdatePatientDoctorIdCommand;
+import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.ProfileId;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientCommandService;
 import com.backend.hormonalcare.medicalRecord.infrastructure.persistence.jpa.repositories.DoctorRepository;
 import com.backend.hormonalcare.medicalRecord.infrastructure.persistence.jpa.repositories.PatientRepository;
@@ -66,18 +67,28 @@ public class PatientCommandServiceImpl implements PatientCommandService {
 
     @Override
     public Optional<Patient> handle(UpdatePatientCommand command){
-        var id = command.id();
-        if (!patientRepository.existsById(id)) {
-            throw new IllegalArgumentException("Patient with id "+ command.id() +"does not exists");
+        var patientOptional = patientRepository.findById(command.id());
+        if (patientOptional.isEmpty()) {
+            throw new IllegalArgumentException("Patient with id " + command.id() + " does not exist");
         }
-        var result = patientRepository.findById(id);
-        var patientToUpdate = result.get();
-        try {
-            var updatedPatient = patientRepository.save(patientToUpdate.updateInformation(command.typeOfBlood()));
-            return Optional.of(updatedPatient);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error while updating patient: " + e.getMessage());
+
+        var patient = patientOptional.get();
+
+        boolean profileUpdated = externalProfileService.updateProfile(
+                patient.getProfileId(),
+                command.firstName(),
+                command.lastName(),
+                command.gender(),
+                command.phoneNumber(),
+                command.image(),
+                command.birthday()
+        );
+        if (!profileUpdated) {
+            throw new IllegalArgumentException("Failed to update profile for patient with id " + command.id());
         }
+        patient.updatePatient(command, new ProfileId(patient.getProfileId()));
+        patientRepository.save(patient);
+        return Optional.of(patient);
     }
 
     @Override
