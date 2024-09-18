@@ -4,14 +4,8 @@ import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByIdQuery
 import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByUserIdQuery;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.domain.services.ProfileQueryService;
-import com.backend.hormonalcare.profile.interfaces.rest.resources.CreateProfileResource;
-import com.backend.hormonalcare.profile.interfaces.rest.resources.ProfileResource;
-import com.backend.hormonalcare.profile.interfaces.rest.resources.UpdateProfileImageResource;
-import com.backend.hormonalcare.profile.interfaces.rest.resources.UpdateProfilePhoneNumberResource;
-import com.backend.hormonalcare.profile.interfaces.rest.transform.CreateProfileCommandFromResourceAssembler;
-import com.backend.hormonalcare.profile.interfaces.rest.transform.ProfileResourceFromEntityAssembler;
-import com.backend.hormonalcare.profile.interfaces.rest.transform.UpdateProfileImageCommandFromResourceAssembler;
-import com.backend.hormonalcare.profile.interfaces.rest.transform.UpdateProfilePhoneNumberCommandFromResourceAssembler;
+import com.backend.hormonalcare.profile.interfaces.rest.resources.*;
+import com.backend.hormonalcare.profile.interfaces.rest.transform.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +45,15 @@ public class ProfileController {
         var profile = profileQueryService.handle(getProfileByIdQuery);
         if(profile.isEmpty()) return ResponseEntity.notFound().build();
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
+        return ResponseEntity.ok(profileResource);
+    }
+
+    @PutMapping("/{profileId}/full-update")
+    public ResponseEntity<ProfileResource> updateProfile(@PathVariable Long profileId, @RequestBody UpdateProfileResource updateProfileResource){
+        var updateProfileCommand = UpdateProfileCommandFromResourceAssembler.toCommandFromResource(profileId, updateProfileResource);
+        var updateProfile = profileCommandService.handle(updateProfileCommand);
+        if(updateProfile.isEmpty()) return ResponseEntity.notFound().build();
+        var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(updateProfile.get());
         return ResponseEntity.ok(profileResource);
     }
 

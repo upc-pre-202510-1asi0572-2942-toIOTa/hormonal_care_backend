@@ -8,6 +8,8 @@ import com.backend.hormonalcare.shared.domain.model.aggregates.AuditableAbstract
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.Date;
+
 @Getter
 @Entity
 public class Profile extends AuditableAbstractAggregateRoot<Profile> {
@@ -52,6 +54,15 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
         this.phoneNumber = new PhoneNumber(command.phoneNumber());
         this.image = command.image();
         this.user = user;
+    }
+
+    public Profile updateProfile(String firstName, String lastName, String gender, String phoneNumber, String image, Date birthday) {
+        this.name = new PersonName(firstName, lastName);
+        this.gender = new Gender(gender);
+        this.phoneNumber = new PhoneNumber(phoneNumber);
+        this.image = image;
+        this.birthday = new Birthday(birthday);
+        return this;
     }
 
     public Profile upsetPhoneNumber(PhoneNumber phoneNumber){

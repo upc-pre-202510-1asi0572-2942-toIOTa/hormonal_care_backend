@@ -4,6 +4,7 @@ import com.backend.hormonalcare.iam.domain.model.aggregates.User;
 import com.backend.hormonalcare.iam.infrastructure.persistence.jpa.repositories.UserRepository;
 import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
+import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileImageCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfilePhoneNumberCommand;
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
@@ -62,6 +63,21 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
         var profileToUpdate = result.get();
         try {
             var updateProfile = profileRepository.save(profileToUpdate.upsetImage(command.image()));
+            return Optional.of(updateProfile);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error updating profile with id "+ id);
+        }
+    }
+
+    @Override
+    public Optional<Profile> handle(UpdateProfileCommand command) {
+        var id = command.id();
+        if (!profileRepository.existsById(id))
+            throw new IllegalArgumentException("Profile with id "+ id +" does not exist");
+        var result = profileRepository.findById(id);
+        var profileToUpdate = result.get();
+        try {
+            var updateProfile = profileRepository.save(profileToUpdate.updateProfile(command.firstName(), command.lastName(), command.gender(), command.phoneNumber(), command.image(), command.birthday()));
             return Optional.of(updateProfile);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error updating profile with id "+ id);
