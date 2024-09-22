@@ -94,5 +94,7 @@ public class Patient extends AuditableAbstractAggregateRoot<Patient> {
     public String getPatientRecordId() {return this.patientRecordId.patientRecordId();}
     public Long getProfileId() {return this.profileId.profileId();}
 
-
+    public Long getId() {
+        return this.getId();
+    }
 }

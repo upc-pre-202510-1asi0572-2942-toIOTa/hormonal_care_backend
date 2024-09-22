@@ -22,7 +22,7 @@ public class MedicalRecordCreatorOnPatientCreated {
     public void handle(PatientCreatedEvent event) {
         Patient patient = patientRepository.findById(event.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Patient with id " + event.getPatientId() + " does not exist"));
-        MedicalRecord medicalRecord = new MedicalRecord(patient);
+        MedicalRecord medicalRecord = new MedicalRecord(patient.getId());
         medicalRecordRepository.save(medicalRecord);
     }
 }
