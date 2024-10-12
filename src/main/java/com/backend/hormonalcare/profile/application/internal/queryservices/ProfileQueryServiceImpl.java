@@ -40,4 +40,9 @@ public class ProfileQueryServiceImpl implements ProfileQueryService {
     public boolean doesProfileExist(GetProfileByUserIdQuery query) {
         return profileRepository.existsByUserId(query.userId());
     }
+
+    @Override
+    public Optional<Profile> handle(GetProfileByUserIdQuery query) {
+        return profileRepository.findByUserId(query.userId());
+    }
 }
