@@ -1,5 +1,6 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest;
 
+import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetAllPatientsByDoctorIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetPatientByIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetPatientByPatientRecordIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetProfileIdByPatientIdQuery;
@@ -13,6 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping(value="/api/v1/medical-record/patient", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PatientController {
@@ -72,6 +77,17 @@ public class PatientController {
         if (patient.isEmpty()) return ResponseEntity.notFound().build();
         var patientResource = PatientResourceFromEntityAssembler.toResourceFromEntity(patient.get());
         return ResponseEntity.ok(patientResource);
+    }
+
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<List<PatientResource>> getAllPatientsByDoctorId(@PathVariable Long doctorId) {
+        var getAllPatientsByDoctorIdQuery = new GetAllPatientsByDoctorIdQuery(doctorId);
+        var patients = patientQueryService.handle(getAllPatientsByDoctorIdQuery);
+        if (patients.isEmpty()) return ResponseEntity.notFound().build();
+        var patientResources = patients.stream()
+                .map(PatientResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(patientResources);
     }
 
     @PutMapping("/{patientId}")

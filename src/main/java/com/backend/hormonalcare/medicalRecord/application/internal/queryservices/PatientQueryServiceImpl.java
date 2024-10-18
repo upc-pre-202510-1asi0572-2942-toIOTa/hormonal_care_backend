@@ -1,14 +1,12 @@
 package com.backend.hormonalcare.medicalRecord.application.internal.queryservices;
 
 import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.Patient;
-import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetPatientByIdQuery;
-import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetPatientByPatientRecordIdQuery;
-import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetPatientByProfileIdQuery;
-import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetProfileIdByPatientIdQuery;
+import com.backend.hormonalcare.medicalRecord.domain.model.queries.*;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientQueryService;
 import com.backend.hormonalcare.medicalRecord.infrastructure.persistence.jpa.repositories.PatientRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 @Service
 public class PatientQueryServiceImpl implements PatientQueryService {
@@ -38,6 +36,11 @@ public class PatientQueryServiceImpl implements PatientQueryService {
     public Optional<Long> handle(GetProfileIdByPatientIdQuery query) {
         return patientRepository.findById(query.patientId())
                 .map(Patient::getProfileId);
+    }
+
+    @Override
+    public List<Patient> handle(GetAllPatientsByDoctorIdQuery query) {
+        return patientRepository.findByDoctor(query.doctorId());
     }
 }
 
