@@ -4,6 +4,7 @@ import java.util.Date;
 
 public record ProfileResource
         (
+        Long id,
         String fullName,
         String gender,
         String phoneNumber,
