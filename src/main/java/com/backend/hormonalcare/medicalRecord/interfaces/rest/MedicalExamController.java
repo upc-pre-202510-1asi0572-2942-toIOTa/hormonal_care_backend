@@ -1,4 +1,5 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest;
+import com.backend.hormonalcare.medicalRecord.domain.model.commands.DeleteMedicalExamCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetMedicalExamByIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetMedicalExamByMedicalRecordIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.services.MedicalExamCommandService;
@@ -48,6 +49,13 @@ public class MedicalExamController {
                 .map(MedicalExamResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(medicalExamResources);
+    }
+
+    @DeleteMapping("/{medicalExamId}")
+    public ResponseEntity<Void> deleteMedicalExam(@PathVariable Long medicalExamId) {
+        var deleteMedicalExamCommand = new DeleteMedicalExamCommand(medicalExamId);
+        medicalExamCommandService.handle(deleteMedicalExamCommand);
+        return ResponseEntity.noContent().build();
     }
 
 

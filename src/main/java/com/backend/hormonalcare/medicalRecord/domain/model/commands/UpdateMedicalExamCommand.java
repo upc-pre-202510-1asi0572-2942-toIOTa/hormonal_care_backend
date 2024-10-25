@@ -1,4 +1,13 @@
 package com.backend.hormonalcare.medicalRecord.domain.model.commands;
 
-public record UpdateMedicalExamCommand(Long id, String name, Long typeExamId, Long medicalRecordId) {
+import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.TypeMedicalExam;
+
+import java.time.LocalDate;
+
+public record UpdateMedicalExamCommand(
+        Long id,
+        String url,
+        TypeMedicalExam typeMedicalExam,
+        LocalDate uploadDate,
+        Long medicalRecordId) {
 }

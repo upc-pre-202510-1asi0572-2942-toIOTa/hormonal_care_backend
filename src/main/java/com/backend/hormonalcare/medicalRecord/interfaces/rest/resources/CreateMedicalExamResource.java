@@ -1,3 +1,11 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest.resources;
 
-public record CreateMedicalExamResource(String name, Long typeExamId, Long medicalRecordId) {}
+import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.TypeMedicalExam;
+
+import java.time.LocalDate;
+
+public record CreateMedicalExamResource(
+        String url,
+        TypeMedicalExam typeMedicalExam,
+        LocalDate uploadDate,
+        Long medicalRecordId) {}

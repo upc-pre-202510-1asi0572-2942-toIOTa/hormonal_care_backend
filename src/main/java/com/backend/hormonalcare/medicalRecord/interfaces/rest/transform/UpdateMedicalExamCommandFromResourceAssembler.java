@@ -6,8 +6,9 @@ public class UpdateMedicalExamCommandFromResourceAssembler {
     public static UpdateMedicalExamCommand toCommandFromResource(Long id, UpdateMedicalExamResource resource) {
         return new UpdateMedicalExamCommand(
                 id,
-                resource.name(),
-                resource.typeExamId(),
+                resource.url(),
+                resource.typeMedicalExam(),
+                resource.uploadDate(),
                 resource.medicalRecordId()
         );
     }
