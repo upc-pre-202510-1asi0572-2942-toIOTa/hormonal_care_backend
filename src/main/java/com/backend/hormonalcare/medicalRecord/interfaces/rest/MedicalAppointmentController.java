@@ -1,7 +1,9 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest;
 
+import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.MedicalAppointment;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.DeleteMedicalAppointmentCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetAllMedicalAppointmentQuery;
+import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetMedicalAppointmentByDoctorIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetMedicalAppointmentByIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.services.MedicalAppointmentCommandService;
 import com.backend.hormonalcare.medicalRecord.domain.services.MedicalAppointmentQueryService;
@@ -31,13 +33,17 @@ public class MedicalAppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<MedicalAppointmentResource> createMedicalAppointment(@RequestBody CreateMedicalAppointmentResource resource){
-        var createMedicalAppointmentCommand = CreateMedicalAppointmentCommandFromResourceAssembler.toCommandFromResource(resource);
+public ResponseEntity<MedicalAppointmentResource> createMedicalAppointment(@RequestBody CreateMedicalAppointmentResource resource){
+    var createMedicalAppointmentCommand = CreateMedicalAppointmentCommandFromResourceAssembler.toCommandFromResource(resource);
+    try {
         var medicalAppointment = medicalAppointmentCommandService.handle(createMedicalAppointmentCommand);
         if(medicalAppointment.isEmpty()) return ResponseEntity.badRequest().build();
         var medicalAppointmentResource = MedicalAppointmentResourceFromEntityAssembler.toResourceFromEntity(medicalAppointment.get());
         return new ResponseEntity<>(medicalAppointmentResource, HttpStatus.CREATED);
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
     }
+}
     @GetMapping
     public ResponseEntity<List<MedicalAppointmentResource>> getAllMedicalAppointments(){
         var medicalAppointments = medicalAppointmentQueryService.handle(new GetAllMedicalAppointmentQuery());
@@ -54,6 +60,17 @@ public class MedicalAppointmentController {
         var medicalAppointmentResource = MedicalAppointmentResourceFromEntityAssembler.toResourceFromEntity(medicalAppointment.get());
         return ResponseEntity.ok(medicalAppointmentResource);
     }
+
+    @GetMapping("/medicalAppointments/doctor/{doctorId}")
+    public ResponseEntity<List<MedicalAppointmentResource>> getMedicalAppointmentsByDoctorId(@PathVariable Long doctorId) {
+        var query = new GetMedicalAppointmentByDoctorIdQuery(doctorId);
+        var medicalAppointments = medicalAppointmentQueryService.handle(query);
+        var medicalAppointmentResources = medicalAppointments.stream()
+                .map(MedicalAppointmentResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(medicalAppointmentResources);
+    }
+
     @PutMapping("/{medicalAppointmentId}")
     public ResponseEntity<MedicalAppointmentResource> updateMedicalAppointment(@PathVariable Long medicalAppointmentId, @RequestBody UpdateMedicalAppointmentResource resource){
         var updateMedicalAppointmentCommand = UpdateMedicalAppointmentCommandFromResourceAssembler.toCommandFromResource(medicalAppointmentId, resource);

@@ -6,6 +6,7 @@ import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.DoctorRe
 public class DoctorResourceFromEntityAssembler {
     public static DoctorResource toResourceFromEntity(Doctor entity){
         return new DoctorResource(
+            entity.getId(),
             entity.getProfessionalIdentificationNumber().professionalIdentificationNumber(),
             entity.getSubSpecialty().subSpecialty(),
             entity.getProfileId(),

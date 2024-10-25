@@ -12,5 +12,5 @@ public interface ProfileQueryService {
     Optional<Profile> handle(GetProfileByNameQuery query);
     Optional<Profile> handle(GetProfileByPhoneNumberQuery query);
     boolean doesProfileExist(GetProfileByUserIdQuery query);
-
+    Optional<Profile> handle(GetProfileByUserIdQuery query);
 }

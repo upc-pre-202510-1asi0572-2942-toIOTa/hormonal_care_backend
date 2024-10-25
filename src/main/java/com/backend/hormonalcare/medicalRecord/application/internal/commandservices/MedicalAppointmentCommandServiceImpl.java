@@ -31,9 +31,10 @@ public class MedicalAppointmentCommandServiceImpl implements MedicalAppointmentC
         var patient = patientRepository.findById(command.patientId()).orElseThrow(() -> new RuntimeException("Patient not found"));
         var doctor = doctorRepository.findById(command.doctorId()).orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-        var existingAppointments = medicalAppointmentRepository.findByEventDateAndStartTime(command.eventDate(), command.startTime());
-        if (!existingAppointments.isEmpty()) {
-            throw new IllegalArgumentException("A medical appointment already exists with the same event date and start time");
+        boolean exists = medicalAppointmentRepository.existsByDoctorIdAndEventDateAndStartTime(
+                command.doctorId(), command.eventDate(), command.startTime());
+        if (exists) {
+            throw new IllegalArgumentException("A medical appointment already exists with the same event date and start time for this doctor.");
         }
 
         var medicalAppointment = new MedicalAppointment(command, patient, doctor);

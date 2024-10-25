@@ -10,6 +10,7 @@ import lombok.Getter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class User extends AuditableAbstractAggregateRoot<User> {
@@ -28,7 +29,7 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     @Getter
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id"))
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
     public User() { this.roles = new HashSet<>();}
@@ -53,5 +54,9 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         var validatedRoles = Role.validateRoleSet(roles);
         this.roles.addAll(validatedRoles);
         return this;
+    }
+
+    public String getRole() {
+        return roles.stream().map(Role::getStringName).collect(Collectors.joining(","));
     }
 }
