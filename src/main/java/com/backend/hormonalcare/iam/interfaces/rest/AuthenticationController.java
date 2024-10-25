@@ -42,7 +42,10 @@ public class AuthenticationController {
         var signInCommand = SignInCommandFromResourceAssembler.toCommandFromResource(resource);
         var authenticatedUser = userCommandService.handle(signInCommand);
         if (authenticatedUser.isEmpty()) return ResponseEntity.notFound().build();
-        var authenticatedUserResource = AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(authenticatedUser.get().getLeft(), authenticatedUser.get().getRight());
+        var user = authenticatedUser.get().getLeft();
+        var token = authenticatedUser.get().getRight();
+        var role = user.getRole(); // Use getRole() method
+        var authenticatedUserResource = AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(user, token, role);
         return ResponseEntity.ok(authenticatedUserResource);
     }
 }

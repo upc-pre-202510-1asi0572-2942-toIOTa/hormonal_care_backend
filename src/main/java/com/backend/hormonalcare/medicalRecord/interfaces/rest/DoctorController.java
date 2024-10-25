@@ -3,8 +3,10 @@ package com.backend.hormonalcare.medicalRecord.interfaces.rest;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdateDoctorCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByDoctorRecordIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByIdQuery;
+import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByProfileIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetProfileIdByDoctorIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.DoctorRecordId;
+import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.ProfileId;
 import com.backend.hormonalcare.medicalRecord.domain.services.DoctorCommandService;
 import com.backend.hormonalcare.medicalRecord.domain.services.DoctorQueryService;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.CreateDoctorResource;
@@ -55,6 +57,17 @@ public class DoctorController {
         var profileId = doctorQueryService.handle(getProfileIdByDoctorIdQuery);
         if (profileId.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(profileId.get());
+    }
+
+    @GetMapping("/profile/{profileId}")
+    public ResponseEntity<DoctorResource> getDoctorByProfileId(@PathVariable Long profileId) {
+        var getDoctorByProfileIdQuery = new GetDoctorByProfileIdQuery(new ProfileId(profileId));
+        var doctor = doctorQueryService.handle(getDoctorByProfileIdQuery);
+        if (doctor.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(doctor.get());
+        return ResponseEntity.ok(doctorResource);
     }
 
     @GetMapping("/record/{doctorRecordId}")

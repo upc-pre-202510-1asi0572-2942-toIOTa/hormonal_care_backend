@@ -6,6 +6,7 @@ import com.backend.hormonalcare.profile.interfaces.rest.resources.ProfileResourc
 public class ProfileResourceFromEntityAssembler {
     public static ProfileResource toResourceFromEntity(Profile entity){
         return new ProfileResource(
+                entity.getId(),
                 entity.getName().getFullName(),
                 entity.getGender().getGender(),
                 entity.getPhoneNumber().getPhoneNumber(),
