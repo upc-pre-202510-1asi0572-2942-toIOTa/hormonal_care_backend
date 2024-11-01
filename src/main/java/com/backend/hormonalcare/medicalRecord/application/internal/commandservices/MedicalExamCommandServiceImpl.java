@@ -3,15 +3,12 @@ package com.backend.hormonalcare.medicalRecord.application.internal.commandservi
 
 import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.MedicalExam;
 import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.MedicalRecord;
-import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.TypeExam;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.CreateMedicalExamCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.DeleteMedicalExamCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdateMedicalExamCommand;
-import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.TypeMedicalExam;
 import com.backend.hormonalcare.medicalRecord.domain.services.MedicalExamCommandService;
 import com.backend.hormonalcare.medicalRecord.infrastructure.persistence.jpa.repositories.MedicalExamRepository;
 import com.backend.hormonalcare.medicalRecord.infrastructure.persistence.jpa.repositories.MedicalRecordRepository;
-import com.backend.hormonalcare.medicalRecord.infrastructure.persistence.jpa.repositories.TypeExamRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
