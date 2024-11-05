@@ -28,7 +28,7 @@ public class MedicalRecordCommandServiceImpl implements MedicalRecordCommandServ
 
         if (optionalPatient.isPresent()) {
             Patient patient = optionalPatient.get();
-            MedicalRecord medicalRecord = new MedicalRecord(patient);
+            MedicalRecord medicalRecord = new MedicalRecord(patient.getId());
             medicalRecordRepository.save(medicalRecord);
             return Optional.of(medicalRecord);
         } else {

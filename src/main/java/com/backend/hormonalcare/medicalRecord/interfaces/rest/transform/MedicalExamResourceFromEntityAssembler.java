@@ -7,8 +7,10 @@ import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.MedicalE
 public class MedicalExamResourceFromEntityAssembler {
     public static MedicalExamResource toResourceFromEntity(MedicalExam entity) {
         return new MedicalExamResource(
-                entity.getName(),
-                entity.getTypeExam().getId(),
+                entity.getId(),
+                entity.getUrl(),
+                entity.getTypeMedicalExam(),
+                entity.getUploadDate(),
                 entity.getMedicalRecord().getId()
         );
     }
