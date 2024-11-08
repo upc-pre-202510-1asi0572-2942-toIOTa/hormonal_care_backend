@@ -22,6 +22,8 @@ public class MedicalAppointment extends AuditableAbstractAggregateRoot<MedicalAp
 
     private String description;
 
+    private String color;
+
     @Getter
     @ManyToOne
     @JoinColumn(name = "patient_id",referencedColumnName = "id" )
@@ -38,7 +40,7 @@ public class MedicalAppointment extends AuditableAbstractAggregateRoot<MedicalAp
     public MedicalAppointment() {
     }
 
-    public MedicalAppointment(LocalDate eventDate, String startTime, String endTime, String title, String description, Patient patient  ,  Doctor doctor) {
+    public MedicalAppointment(LocalDate eventDate, String startTime, String endTime, String title, String description, Patient patient  ,  Doctor doctor, String color) {
         this.eventDate = eventDate;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -46,6 +48,7 @@ public class MedicalAppointment extends AuditableAbstractAggregateRoot<MedicalAp
         this.description = description;
         this.patient = patient;
         this.doctor = doctor;
+        this.color = color;
     }
 
     public MedicalAppointment(CreateMedicalAppointmentCommand command, Patient patient  ,  Doctor doctor) {
@@ -56,9 +59,10 @@ public class MedicalAppointment extends AuditableAbstractAggregateRoot<MedicalAp
         this.description = command.description();
         this.patient = patient;
         this.doctor = doctor;
+        this.color = command.color();
     }
 
-    public MedicalAppointment updateInformation(LocalDate eventDate, String startTime, String endTime, String title, String description, Patient patient  ,  Doctor doctor) {
+    public MedicalAppointment updateInformation(LocalDate eventDate, String startTime, String endTime, String title, String description, Patient patient  ,  Doctor doctor, String color) {
         this.eventDate =  eventDate;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -66,6 +70,7 @@ public class MedicalAppointment extends AuditableAbstractAggregateRoot<MedicalAp
         this.description = description;
         this.patient = patient;
         this.doctor = doctor;
+        this.color = color;
 
         return this;
     }

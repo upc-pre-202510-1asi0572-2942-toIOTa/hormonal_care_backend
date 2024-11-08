@@ -9,6 +9,7 @@ public record UpdateMedicalAppointmentResource(
         String title,
         String description,
         Long doctorId,
-        Long patientId
+        Long patientId,
+        String color
 ) {
 }
