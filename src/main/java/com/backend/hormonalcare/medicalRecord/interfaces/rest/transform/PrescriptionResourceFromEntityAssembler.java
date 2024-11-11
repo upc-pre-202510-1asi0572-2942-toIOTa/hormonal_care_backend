@@ -7,8 +7,7 @@ public class PrescriptionResourceFromEntityAssembler {
     public static PrescriptionResource toResourceFromEntity(Prescription entity) {
         return new PrescriptionResource(
                 entity.getId(),
-                entity.getDoctorId(),
-                entity.getPatientId(),
+                entity.getMedicalRecord().getId(),
                 entity.getPrescriptionDate(),
                 entity.getNotes()
         );

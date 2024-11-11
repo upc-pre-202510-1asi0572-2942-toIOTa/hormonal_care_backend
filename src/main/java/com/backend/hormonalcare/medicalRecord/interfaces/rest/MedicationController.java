@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/medical-record/medications", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -132,6 +133,18 @@ public class MedicationController {
         var prescriptionResource = PrescriptionResourceFromEntityAssembler.toResourceFromEntity(prescription.get());
         return ResponseEntity.ok(prescriptionResource);
     }
+
+    @GetMapping("/prescriptions/medicalRecordId/{medicalRecordId}")
+public ResponseEntity<List<PrescriptionResource>> getPrescriptionsByMedicalRecordId(@PathVariable Long medicalRecordId) {
+    var getPrescriptionsByMedicalRecordIdQuery = new GetPrescriptionByMedicalRecordIdQuery(medicalRecordId);
+    var prescriptions = prescriptionQueryService.handle(getPrescriptionsByMedicalRecordIdQuery);
+    if (prescriptions.isEmpty()) return ResponseEntity.notFound().build();
+    var prescriptionResources = prescriptions.stream()
+            .map(PrescriptionResourceFromEntityAssembler::toResourceFromEntity)
+            .collect(Collectors.toList());
+    return ResponseEntity.ok(prescriptionResources);
+}
+
 
     @PutMapping("/prescriptions/{prescriptionId}")
     public ResponseEntity<PrescriptionResource> updatePrescription(@PathVariable Long prescriptionId, @RequestBody UpdatePrescriptionResource updatePrescriptionResource) {

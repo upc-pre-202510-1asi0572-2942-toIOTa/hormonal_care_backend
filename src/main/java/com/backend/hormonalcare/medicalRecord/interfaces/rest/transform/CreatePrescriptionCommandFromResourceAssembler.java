@@ -6,8 +6,7 @@ import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.CreatePr
 public class CreatePrescriptionCommandFromResourceAssembler {
     public static CreatePrescriptionCommand toCommandFromResource(CreatePrescriptionResource resource) {
         return new CreatePrescriptionCommand(
-                resource.doctorId(),
-                resource.patientId(),
+                resource.medicalRecordId(),
                 resource.prescriptionDate(),
                 resource.notes()
         );
