@@ -60,7 +60,8 @@ public class MedicalAppointmentCommandServiceImpl implements MedicalAppointmentC
                             command.title(),
                             command.description(),
                             patient,
-                            doctor
+                            doctor,
+                            command.color()
                     ));
             return Optional.of(updatedMedicalAppointment);
         } catch (Exception e) {

@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface PrescriptionQueryService {
     List<Prescription> handle(GetAllPrescriptionsQuery query);
     Optional<Prescription> handle(GetPrescriptionByIdQuery query);
+    List<Prescription> handle(GetPrescriptionByMedicalRecordIdQuery query);
 }

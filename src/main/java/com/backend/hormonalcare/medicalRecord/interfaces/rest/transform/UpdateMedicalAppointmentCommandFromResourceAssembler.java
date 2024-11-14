@@ -13,7 +13,8 @@ public class UpdateMedicalAppointmentCommandFromResourceAssembler {
                 resource.title(),
                 resource.description(),
                 resource.doctorId(),
-                resource.patientId()
+                resource.patientId(),
+                resource.color()
         );
     }
 }
