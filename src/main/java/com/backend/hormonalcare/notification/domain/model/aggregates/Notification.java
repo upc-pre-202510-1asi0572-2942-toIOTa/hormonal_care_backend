@@ -1,6 +1,7 @@
 package com.backend.hormonalcare.notification.domain.model.aggregates;
 
 import com.backend.hormonalcare.notification.domain.model.commands.CreateNotificationCommand;
+import com.backend.hormonalcare.notification.domain.model.commands.UpdateNotificationStateCommand;
 import com.backend.hormonalcare.notification.domain.model.valueobjects.State;
 import com.backend.hormonalcare.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ public class Notification extends AuditableAbstractAggregateRoot<Notification> {
 
     @Column(name = "message")
     private String message;
-    
+
     @Enumerated(EnumType.STRING)
     private State state;
 
@@ -37,6 +38,14 @@ public class Notification extends AuditableAbstractAggregateRoot<Notification> {
         this.message = command.message();
         this.state = command.state();
         this.recipientId = command.recipientId();
+    }
+
+    public Notification(UpdateNotificationStateCommand command) {
+        this.state = command.state();
+    }
+
+    public void updateState(State state) {
+        this.state = state;
     }
 
 }

@@ -3,12 +3,15 @@ package com.backend.hormonalcare.notification.interfaces.rest;
 
 import com.backend.hormonalcare.notification.domain.model.commands.DeleteNotificationCommand;
 import com.backend.hormonalcare.notification.domain.model.queries.GetAllNotificationsByRecipientIdQuery;
+import com.backend.hormonalcare.notification.domain.model.queries.GetNotificationByIdQuery;
 import com.backend.hormonalcare.notification.domain.services.NotificationCommandService;
 import com.backend.hormonalcare.notification.domain.services.NotificationQueryService;
 import com.backend.hormonalcare.notification.interfaces.rest.resources.CreateNotificationResource;
 import com.backend.hormonalcare.notification.interfaces.rest.resources.NotificationResource;
+import com.backend.hormonalcare.notification.interfaces.rest.resources.UpdateNotificationStateResource;
 import com.backend.hormonalcare.notification.interfaces.rest.transform.CreateNotificationCommandFromResourceAssembler;
 import com.backend.hormonalcare.notification.interfaces.rest.transform.NotificationResourceFromEntityAssembler;
+import com.backend.hormonalcare.notification.interfaces.rest.transform.UpdateNotificationStateCommandFromResourceAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +53,25 @@ public class NotificationController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(notificationResources);
     }
+
+    @GetMapping("/{notificationId}")
+public ResponseEntity<NotificationResource> getNotificationById(@PathVariable Long notificationId) {
+    var getNotificationByIdQuery = new GetNotificationByIdQuery(notificationId);
+    var notification = notificationQueryService.handle(getNotificationByIdQuery);
+    if (notification.isEmpty()) return ResponseEntity.notFound().build();
+    var notificationResource = NotificationResourceFromEntityAssembler.toResourceFromEntity(notification.get());
+    return ResponseEntity.ok(notificationResource);
+}
+
+
+@PutMapping("/{notificationId}/state")
+public ResponseEntity<NotificationResource> updateNotificationState(@PathVariable Long notificationId, @RequestBody UpdateNotificationStateResource resource) {
+    var updateNotificationStateCommand = UpdateNotificationStateCommandFromResourceAssembler.toCommandFromResource(notificationId, resource);
+    var updatedNotification = notificationCommandService.handle(updateNotificationStateCommand);
+    if (updatedNotification.isEmpty()) return ResponseEntity.notFound().build();
+    var notificationResource = NotificationResourceFromEntityAssembler.toResourceFromEntity(updatedNotification.get());
+    return ResponseEntity.ok(notificationResource);
+}
 
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
