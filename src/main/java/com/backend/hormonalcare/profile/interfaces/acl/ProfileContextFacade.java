@@ -2,6 +2,7 @@ package com.backend.hormonalcare.profile.interfaces.acl;
 
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileCommand;
+import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByIdQuery;
 import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByPhoneNumberQuery;
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
@@ -40,4 +41,22 @@ public class ProfileContextFacade {
         if (profile.isEmpty()) return 0L;
         return profile.get().getId();
     }
+
+
+        // Add these new methods for Communication bounded context
+    
+    public boolean profileExists(Long profileId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(getProfileByIdQuery);
+        return profile.isPresent();
+    }
+    
+    public String getProfileFullName(Long profileId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(getProfileByIdQuery);
+        if (profile.isEmpty()) return "";
+        
+        return profile.get().getName().firstName() + " " + profile.get().getName().lastName();
+    }
+
 }
