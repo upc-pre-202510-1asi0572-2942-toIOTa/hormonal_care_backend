@@ -1,5 +1,9 @@
 package com.backend.hormonalcare.profile.interfaces.acl;
 
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByIdQuery;
@@ -7,9 +11,6 @@ import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByPhoneNu
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.domain.services.ProfileQueryService;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Service
 public class ProfileContextFacade {
@@ -57,6 +58,14 @@ public class ProfileContextFacade {
         if (profile.isEmpty()) return "";
         
         return profile.get().getName().firstName() + " " + profile.get().getName().lastName();
+    }
+
+    public String getProfileImage(Long profileId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(getProfileByIdQuery);
+        if (profile.isEmpty()) return "";
+        
+        return profile.get().getImage();
     }
 
 }

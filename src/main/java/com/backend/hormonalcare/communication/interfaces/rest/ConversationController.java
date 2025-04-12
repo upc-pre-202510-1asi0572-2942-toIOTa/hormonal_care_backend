@@ -1,20 +1,25 @@
 package com.backend.hormonalcare.communication.interfaces.rest;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.backend.hormonalcare.communication.application.internal.enrichers.ConversationEnricherService;
 import com.backend.hormonalcare.communication.domain.model.queries.GetConversationByIdQuery;
 import com.backend.hormonalcare.communication.domain.model.queries.GetConversationsByProfileIdQuery;
 import com.backend.hormonalcare.communication.domain.services.ConversationCommandService;
 import com.backend.hormonalcare.communication.domain.services.ConversationQueryService;
-import com.backend.hormonalcare.communication.interfaces.rest.resources.ConversationResource;
 import com.backend.hormonalcare.communication.interfaces.rest.resources.CreateConversationResource;
-import com.backend.hormonalcare.communication.interfaces.rest.transform.ConversationResourceFromEntityAssembler;
+import com.backend.hormonalcare.communication.interfaces.rest.resources.EnrichedConversationResource;
 import com.backend.hormonalcare.communication.interfaces.rest.transform.CreateConversationCommandFromResourceAssembler;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/communication/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -22,14 +27,19 @@ public class ConversationController {
     
     private final ConversationCommandService conversationCommandService;
     private final ConversationQueryService conversationQueryService;
+    private final ConversationEnricherService conversationEnricherService;
     
-    public ConversationController(ConversationCommandService conversationCommandService, ConversationQueryService conversationQueryService) {
+    public ConversationController(
+        ConversationCommandService conversationCommandService, 
+        ConversationQueryService conversationQueryService,
+        ConversationEnricherService conversationEnricherService) {
         this.conversationCommandService = conversationCommandService;
         this.conversationQueryService = conversationQueryService;
+        this.conversationEnricherService = conversationEnricherService;
     }
     
     @PostMapping
-    public ResponseEntity<ConversationResource> createConversation(@RequestBody CreateConversationResource resource) {
+    public ResponseEntity<EnrichedConversationResource> createConversation(@RequestBody CreateConversationResource resource) {
         var createConversationCommand = CreateConversationCommandFromResourceAssembler.toCommandFromResource(resource);
         
         try {
@@ -39,17 +49,16 @@ public class ConversationController {
                 return ResponseEntity.badRequest().build();
             }
             
-            var conversationResource = ConversationResourceFromEntityAssembler
-                .toResourceFromEntity(conversationOptional.get());
+            var enrichedConversation = conversationEnricherService.enrichConversation(conversationOptional.get());
                 
-            return new ResponseEntity<>(conversationResource, HttpStatus.CREATED);
+            return new ResponseEntity<>(enrichedConversation, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
     
     @GetMapping("/{conversationId}")
-    public ResponseEntity<ConversationResource> getConversationById(@PathVariable String conversationId) {
+    public ResponseEntity<EnrichedConversationResource> getConversationById(@PathVariable String conversationId) {
         var query = new GetConversationByIdQuery(conversationId);
         var conversationOptional = conversationQueryService.handle(query);
         
@@ -57,21 +66,18 @@ public class ConversationController {
             return ResponseEntity.notFound().build();
         }
         
-        var conversationResource = ConversationResourceFromEntityAssembler
-            .toResourceFromEntity(conversationOptional.get());
+        var enrichedConversation = conversationEnricherService.enrichConversation(conversationOptional.get());
             
-        return ResponseEntity.ok(conversationResource);
+        return ResponseEntity.ok(enrichedConversation);
     }
     
     @GetMapping("/user/{profileId}")
-    public ResponseEntity<List<ConversationResource>> getConversationsByProfileId(@PathVariable Long profileId) {
+    public ResponseEntity<List<EnrichedConversationResource>> getConversationsByProfileId(@PathVariable Long profileId) {
         var query = new GetConversationsByProfileIdQuery(profileId);
         var conversations = conversationQueryService.handle(query);
         
-        var conversationResources = conversations.stream()
-            .map(ConversationResourceFromEntityAssembler::toResourceFromEntity)
-            .collect(Collectors.toList());
+        var enrichedConversations = conversationEnricherService.enrichConversations(conversations);
             
-        return ResponseEntity.ok(conversationResources);
+        return ResponseEntity.ok(enrichedConversations);
     }
 }

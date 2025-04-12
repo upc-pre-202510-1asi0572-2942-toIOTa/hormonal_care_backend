@@ -1,5 +1,12 @@
 package com.backend.hormonalcare.communication.application.internal.commandservices;
 
+import java.util.Date;
+import java.util.Optional;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import com.backend.hormonalcare.communication.application.internal.outboundservices.acl.CommunicationExternalProfileService;
 import com.backend.hormonalcare.communication.domain.events.MessageSentEvent;
 import com.backend.hormonalcare.communication.domain.model.aggregates.Conversation;
 import com.backend.hormonalcare.communication.domain.model.aggregates.Message;
@@ -9,11 +16,6 @@ import com.backend.hormonalcare.communication.domain.model.commands.UpdateMessag
 import com.backend.hormonalcare.communication.domain.services.MessageCommandService;
 import com.backend.hormonalcare.communication.infrastructure.persistence.mongodb.repositories.ConversationRepository;
 import com.backend.hormonalcare.communication.infrastructure.persistence.mongodb.repositories.MessageRepository;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class MessageCommandServiceImpl implements MessageCommandService {
@@ -22,7 +24,11 @@ public class MessageCommandServiceImpl implements MessageCommandService {
     private final ConversationRepository conversationRepository;
     private final ApplicationEventPublisher eventPublisher;
     
-    public MessageCommandServiceImpl(MessageRepository messageRepository, ConversationRepository conversationRepository, ApplicationEventPublisher eventPublisher) {
+    public MessageCommandServiceImpl(
+        MessageRepository messageRepository,
+        ConversationRepository conversationRepository,
+        CommunicationExternalProfileService externalProfileService,
+        ApplicationEventPublisher eventPublisher) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
         this.eventPublisher = eventPublisher;
