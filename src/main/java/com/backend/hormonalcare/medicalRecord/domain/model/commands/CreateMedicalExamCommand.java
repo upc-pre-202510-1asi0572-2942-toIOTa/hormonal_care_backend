@@ -4,5 +4,10 @@ import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.TypeMedi
 
 import java.time.LocalDate;
 
-public record CreateMedicalExamCommand(String url, TypeMedicalExam typeMedicalExam, LocalDate uploadDate, Long medicalRecord) {
+public record CreateMedicalExamCommand(
+        String url,
+        TypeMedicalExam typeMedicalExam,
+        LocalDate uploadDate,
+        Long medicalRecord
+) {
 }

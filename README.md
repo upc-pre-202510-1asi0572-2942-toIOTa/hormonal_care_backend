@@ -67,3 +67,7 @@ Database: hormonal_care_communication
 
 Connection URL: mongodb://localhost:27027/hormonal_care_communication
 ```
+
+### Swagger UI
+
+Enter to this link: http://localhost:8080/swagger-ui/index.html#/

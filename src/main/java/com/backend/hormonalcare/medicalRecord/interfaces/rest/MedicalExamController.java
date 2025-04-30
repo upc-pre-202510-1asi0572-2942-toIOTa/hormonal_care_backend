@@ -1,7 +1,9 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest;
+import com.backend.hormonalcare.medicalRecord.domain.model.commands.CreateMedicalExamCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.DeleteMedicalExamCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetMedicalExamByIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetMedicalExamByMedicalRecordIdQuery;
+import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.TypeMedicalExam;
 import com.backend.hormonalcare.medicalRecord.domain.services.MedicalExamCommandService;
 import com.backend.hormonalcare.medicalRecord.domain.services.MedicalExamQueryService;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.CreateMedicalExamResource;
@@ -10,11 +12,16 @@ import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.UpdateMe
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.CreateMedicalExamCommandFromResourceAssembler;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.MedicalExamResourceFromEntityAssembler;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.UpdateMedicalExamCommandFromResourceAssembler;
+import java.io.IOException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.SupabaseStorageService;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,20 +32,62 @@ public class MedicalExamController {
 
     private final MedicalExamCommandService medicalExamCommandService;
     private final MedicalExamQueryService medicalExamQueryService;
+    private final SupabaseStorageService supabaseStorageService;
 
-    public MedicalExamController(MedicalExamCommandService medicalExamCommandService, MedicalExamQueryService medicalExamQueryService) {
+    public MedicalExamController(SupabaseStorageService supabaseStorageService,MedicalExamCommandService medicalExamCommandService, MedicalExamQueryService medicalExamQueryService) {
+        this.supabaseStorageService = supabaseStorageService;
         this.medicalExamCommandService = medicalExamCommandService;
         this.medicalExamQueryService = medicalExamQueryService;
     }
 
-    @PostMapping
-    public ResponseEntity<MedicalExamResource> createMedicalExam(@RequestBody CreateMedicalExamResource resource) {
-        var createMedicalExamCommand = CreateMedicalExamCommandFromResourceAssembler.toCommandFromResource(resource);
-        var medicalExam = medicalExamCommandService.handle(createMedicalExamCommand);
-        if (medicalExam.isEmpty()) return ResponseEntity.badRequest().build();
-        var medicalExamResource = MedicalExamResourceFromEntityAssembler.toResourceFromEntity(medicalExam.get());
-        return new ResponseEntity<>(medicalExamResource, HttpStatus.CREATED);
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MedicalExamResource> createMedicalExam(
+            @RequestParam("typeMedicalExam") TypeMedicalExam typeMedicalExam,
+            @RequestParam("uploadDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate uploadDate,
+            @RequestParam("medicalRecordId") Long medicalRecordId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        try {
+            // Verificar si el archivo está vacío
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            // Subir el archivo y obtener la URL
+            String url = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
+
+            // Si la URL es nula o vacía, devolver un error
+            if (url == null || url.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+
+            // Crear el comando para crear un examen médico
+            var command = new CreateMedicalExamCommand(
+                    url,
+                    typeMedicalExam,
+                    uploadDate,
+                    medicalRecordId
+            );
+
+            // Ejecutar el comando para crear el examen
+            var medicalExam = medicalExamCommandService.handle(command);
+            if (medicalExam.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Convertir el examen médico a un recurso y devolver la respuesta
+            var resource = MedicalExamResourceFromEntityAssembler.toResourceFromEntity(medicalExam.get());
+            return new ResponseEntity<>(resource, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            e.printStackTrace(); // O usa un logger
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
+
     }
+
+
 
     @GetMapping("/medicalRecordId/{medicalRecordId}")
     public ResponseEntity<List<MedicalExamResource>> getMedicalExamsByMedicalRecordId(@PathVariable Long medicalRecordId) {
