@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -18,13 +20,20 @@ public class SupabaseStorageService {
 
     public String uploadFile(byte[] fileData, String originalFileName) throws IOException {
         String uniqueFileName = UUID.randomUUID() + "-" + originalFileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-        RequestBody requestBody = RequestBody.create(fileData, MediaType.parse("application/octet-stream"));
+
+        // Determinar el Content-Type basado en la extensión del archivo
+        String contentType = Files.probeContentType(Paths.get(originalFileName));
+        if (contentType == null) {
+            contentType = "application/octet-stream"; // Valor predeterminado
+        }
+
+        RequestBody requestBody = RequestBody.create(fileData, MediaType.parse(contentType));
 
         Request request = new Request.Builder()
                 .url(properties.getUrl() + "/storage/v1/object/" + properties.getBucket() + "/" + uniqueFileName)
                 .addHeader("apikey", properties.getKey())
                 .addHeader("Authorization", "Bearer " + properties.getKey())
-                .addHeader("Content-Type", "application/octet-stream")
+                .addHeader("Content-Type", contentType)
                 .put(requestBody)
                 .build();
 
