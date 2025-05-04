@@ -1,6 +1,8 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest;
 
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdateDoctorCommand;
+import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetAllDoctorsQuery;
+import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetAllMedicalAppointmentQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByDoctorRecordIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByIdQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByProfileIdQuery;
@@ -11,10 +13,16 @@ import com.backend.hormonalcare.medicalRecord.domain.services.DoctorCommandServi
 import com.backend.hormonalcare.medicalRecord.domain.services.DoctorQueryService;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.CreateDoctorResource;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.DoctorResource;
+import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.MedicalAppointmentResource;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.UpdateDoctorResource;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.CreateDoctorCommandFromResourceAssembler;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.DoctorResourceFromEntityAssembler;
+import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.MedicalAppointmentResourceFromEntityAssembler;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.UpdateDoctorCommandFromResourceAssembler;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -96,5 +104,13 @@ public class DoctorController {
         if(updatedDoctor.isEmpty()) return ResponseEntity.notFound().build();
         var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(updatedDoctor.get());
         return ResponseEntity.ok(doctorResource);
+    }
+    @GetMapping
+    public ResponseEntity<List<DoctorResource>> getAllDoctors(){
+        var doctor = doctorQueryService.handle(new GetAllDoctorsQuery());
+        var doctorResources = doctor.stream()
+                .map(DoctorResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(doctorResources);
     }
 }
