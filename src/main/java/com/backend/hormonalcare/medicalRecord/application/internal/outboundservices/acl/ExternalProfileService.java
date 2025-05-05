@@ -2,10 +2,12 @@ package com.backend.hormonalcare.medicalRecord.application.internal.outboundserv
 
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.ProfileId;
 import com.backend.hormonalcare.profile.interfaces.acl.ProfileContextFacade;
+import com.backend.hormonalcare.profile.interfaces.acl.ProfileDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
+
 @Service
 public class ExternalProfileService {
     private final ProfileContextFacade profilesContextFacade;
@@ -13,11 +15,13 @@ public class ExternalProfileService {
     public ExternalProfileService(ProfileContextFacade profilesContextFacade) {
         this.profilesContextFacade = profilesContextFacade;
     }
+
     public Optional<ProfileId> fetchProfileIdByPhoneNumber(String phoneNumber) {
         var profileId = profilesContextFacade.fetchProfileIdByPhoneNumber(phoneNumber);
         if (profileId == 0L) return Optional.empty();
         return Optional.of(new ProfileId(profileId));
     }
+
     public Optional<ProfileId> createProfile(
             String firstName,
             String lastName,
@@ -44,4 +48,14 @@ public class ExternalProfileService {
         return profilesContextFacade.updateProfile(profileId, firstName, lastName, gender, phoneNumber, image, birthday);
     }
 
+    public Optional<ProfileDetails> fetchProfileDetails(Long profileId) {
+        if (!profilesContextFacade.profileExists(profileId)) {
+            return Optional.empty();
+        }
+
+        String fullName = profilesContextFacade.getProfileFullName(profileId);
+        String image = profilesContextFacade.getProfileImage(profileId);
+
+        return Optional.of(new ProfileDetails(profileId, fullName, image));
+    }
 }

@@ -10,7 +10,7 @@ public class DoctorResourceFromEntityAssembler {
             entity.getProfessionalIdentificationNumber().professionalIdentificationNumber(),
             entity.getSubSpecialty().subSpecialty(),
             entity.getProfileId(),
-                entity.getDoctorRecordId()
+            entity.getDoctorRecordId()
         );
     }
 }
