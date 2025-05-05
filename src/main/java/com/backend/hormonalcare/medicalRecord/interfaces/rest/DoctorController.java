@@ -119,12 +119,15 @@ public class DoctorController {
         var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(updatedDoctor.get());
         return ResponseEntity.ok(doctorResource);
     }
+
     @GetMapping
-    public ResponseEntity<List<DoctorResource>> getAllDoctors(){
-        var doctor = doctorQueryService.handle(new GetAllDoctorsQuery());
-        var doctorResources = doctor.stream()
-                .map(DoctorResourceFromEntityAssembler::toResourceFromEntity)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(doctorResources);
+    public ResponseEntity<List<DoctorWithProfileResource>> getAllDoctors() {
+        var doctors = doctorQueryService.handle(new GetAllDoctorsQuery());
+        var doctorWithProfileResources = doctors.stream().map(doctor -> {
+            var profileDetailsOptional = externalProfileService.fetchProfileDetails(doctor.getProfileId());
+            var profileDetails = profileDetailsOptional.orElse(null);
+            return DoctorWithProfileResourceFromEntityAssembler.toResourceFromEntity(doctor, profileDetails);
+        }).toList();
+        return ResponseEntity.ok(doctorWithProfileResources);
     }
 }

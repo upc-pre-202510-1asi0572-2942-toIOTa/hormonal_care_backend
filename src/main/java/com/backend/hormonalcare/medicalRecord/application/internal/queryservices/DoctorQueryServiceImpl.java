@@ -61,7 +61,15 @@ public class DoctorQueryServiceImpl implements DoctorQueryService {
 
     @Override
     public List<Doctor> handle(GetAllDoctorsQuery query) {
-        return doctorRepository.findAll();
+        var doctors = doctorRepository.findAll();
+        doctors.forEach(doctor -> {
+            var profileDetailsOptional = externalProfileService.fetchProfileDetails(doctor.getProfileId());
+            profileDetailsOptional.ifPresent(profileDetails -> {
+                // Opcional: Log o procesamiento adicional
+                System.out.println("Profile Details for Doctor ID " + doctor.getId() + ": " + profileDetails.getFullName());
+            });
+        });
+        return doctors;
     }
 
 }
