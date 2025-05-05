@@ -39,4 +39,9 @@ public class MedicalAppointmentQueryServiceImpl implements MedicalAppointmentQue
 
     }
 
+    @Override
+    public List<MedicalAppointment> handle(GetMedicalAppointmentByPatientIdQuery query) {
+        return medicalAppointmentRepository.findByPatientIdOrderByEventDateStartTime(query.patientId());
+    }
+
 }

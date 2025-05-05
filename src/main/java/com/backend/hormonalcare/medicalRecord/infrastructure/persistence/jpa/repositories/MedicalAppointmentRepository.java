@@ -18,6 +18,9 @@ public interface MedicalAppointmentRepository extends JpaRepository<MedicalAppoi
     @Query("SELECT m FROM MedicalAppointment m WHERE m.doctor.id = :doctorId ORDER BY m.eventDate, m.startTime")
     List<MedicalAppointment> findByDoctorIdOrderByEventDateStartTime(Long doctorId);
 
+    @Query("SELECT m FROM MedicalAppointment m WHERE m.patient.id = :patientId ORDER BY m.eventDate, m.startTime")
+    List<MedicalAppointment> findByPatientIdOrderByEventDateStartTime(Long patientId);
+
     @Query("SELECT COUNT(m) > 0 FROM MedicalAppointment m WHERE m.doctor.id = :doctorId AND m.eventDate = :eventDate AND m.startTime = :startTime")
     boolean existsByDoctorIdAndEventDateAndStartTime(Long doctorId, LocalDate eventDate, String startTime);
 }

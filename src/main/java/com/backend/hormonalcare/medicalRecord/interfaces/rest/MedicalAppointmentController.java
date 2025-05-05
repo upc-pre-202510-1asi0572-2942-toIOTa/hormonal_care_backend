@@ -71,6 +71,16 @@ public ResponseEntity<MedicalAppointmentResource> createMedicalAppointment(@Requ
         return ResponseEntity.ok(medicalAppointmentResources);
     }
 
+    @GetMapping("/medicalAppointments/patient/{patientId}")
+    public ResponseEntity<List<MedicalAppointmentResource>> getMedicalAppointmentsByPatientId(@PathVariable Long patientId) {
+        var query = new GetMedicalAppointmentByDoctorIdQuery(patientId);
+        var medicalAppointments = medicalAppointmentQueryService.handle(query);
+        var medicalAppointmentResources = medicalAppointments.stream()
+                .map(MedicalAppointmentResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(medicalAppointmentResources);
+    }
+
     @PutMapping("/{medicalAppointmentId}")
     public ResponseEntity<MedicalAppointmentResource> updateMedicalAppointment(@PathVariable Long medicalAppointmentId, @RequestBody UpdateMedicalAppointmentResource resource){
         var updateMedicalAppointmentCommand = UpdateMedicalAppointmentCommandFromResourceAssembler.toCommandFromResource(medicalAppointmentId, resource);
