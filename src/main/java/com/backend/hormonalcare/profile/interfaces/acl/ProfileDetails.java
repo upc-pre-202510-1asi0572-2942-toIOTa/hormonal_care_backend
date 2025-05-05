@@ -4,11 +4,17 @@ public class ProfileDetails {
     private final Long profileId;
     private final String fullName;
     private final String image;
+    private final String gender; // Added gender attribute
+    private final String phoneNumber; // Added phoneNumber attribute
+    private final String birthday; // Added birthday attribute
 
-    public ProfileDetails(Long profileId, String fullName, String image) {
+    public ProfileDetails(Long profileId, String fullName, String image, String gender, String phoneNumber, String birthday) {
         this.profileId = profileId;
         this.fullName = fullName;
         this.image = image;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.birthday = birthday;
     }
 
     public Long getProfileId() {
@@ -21,5 +27,17 @@ public class ProfileDetails {
 
     public String getImage() {
         return image;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getBirthday() {
+        return birthday;
     }
 }

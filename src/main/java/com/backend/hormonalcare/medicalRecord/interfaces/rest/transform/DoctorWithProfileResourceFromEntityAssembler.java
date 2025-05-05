@@ -8,12 +8,15 @@ public class DoctorWithProfileResourceFromEntityAssembler {
     public static DoctorWithProfileResource toResourceFromEntity(Doctor entity, ProfileDetails profileDetails) {
         return new DoctorWithProfileResource(
             entity.getId(),
+            profileDetails != null ? profileDetails.getFullName() : null,
+            profileDetails != null ? profileDetails.getImage() : null,
+            profileDetails != null ? profileDetails.getGender() : null,
+            profileDetails != null ? profileDetails.getPhoneNumber() : null,
+            profileDetails != null ? profileDetails.getBirthday() : null,
             entity.getProfessionalIdentificationNumber().professionalIdentificationNumber(),
             entity.getSubSpecialty().subSpecialty(),
             entity.getProfileId(),
-            entity.getDoctorRecordId(),
-            profileDetails != null ? profileDetails.getFullName() : null,
-            profileDetails != null ? profileDetails.getImage() : null
+            entity.getDoctorRecordId()
         );
     }
 }

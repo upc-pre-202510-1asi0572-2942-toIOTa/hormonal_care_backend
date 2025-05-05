@@ -68,4 +68,30 @@ public class ProfileContextFacade {
         return profile.get().getImage();
     }
 
+    public String getGender(Long profileId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(getProfileByIdQuery);
+        if (profile.isEmpty()) return "";
+    
+        // Accedemos al valor interno del objeto Gender
+        return profile.get().getGender().gender();
+    }
+    
+    public String getProfilePhoneNumber(Long profileId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(getProfileByIdQuery);
+        if (profile.isEmpty()) return "";
+    
+        // Accedemos al valor interno del objeto PhoneNumber
+        return profile.get().getPhoneNumber().phoneNumber();
+    }
+    
+    public String getProfileBirthday(Long profileId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(getProfileByIdQuery);
+        if (profile.isEmpty()) return "";
+    
+        // Convertimos el objeto Birthday a una cadena en formato ISO 8601
+        return profile.get().getBirthday().birthday().toString();
+    }
 }

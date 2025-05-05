@@ -55,7 +55,10 @@ public class ExternalProfileService {
 
         String fullName = profilesContextFacade.getProfileFullName(profileId);
         String image = profilesContextFacade.getProfileImage(profileId);
+        String gender = profilesContextFacade.getGender(profileId);
+        String phoneNumber = profilesContextFacade.getProfilePhoneNumber(profileId);
+        String birthday = profilesContextFacade.getProfileBirthday(profileId);
 
-        return Optional.of(new ProfileDetails(profileId, fullName, image));
+        return Optional.of(new ProfileDetails(profileId, fullName, image, gender, phoneNumber, birthday));
     }
 }
