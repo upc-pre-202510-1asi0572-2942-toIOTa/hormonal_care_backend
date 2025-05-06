@@ -109,11 +109,24 @@ public class MedicalExamController {
     @DeleteMapping("/{medicalExamId}")
     public ResponseEntity<Void> deleteMedicalExam(@PathVariable Long medicalExamId) {
         var deleteMedicalExamCommand = new DeleteMedicalExamCommand(medicalExamId);
+        var medicalExam = medicalExamQueryService.handle(new GetMedicalExamByIdQuery(medicalExamId));
+
+        if (medicalExam.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            // Delete the file from Supabase storage
+            String filePath = medicalExam.get().getUrl().replace(supabaseStorageService.getProperties().getUrl() + "/storage/v1/object/public/" + supabaseStorageService.getProperties().getBucket() + "/", "");
+            supabaseStorageService.deleteFile(filePath);
+        } catch (IOException e) {
+            e.printStackTrace(); // Log the error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
         medicalExamCommandService.handle(deleteMedicalExamCommand);
         return ResponseEntity.noContent().build();
     }
-
-
 
     @GetMapping("/{medicalExamId}")
     public ResponseEntity<MedicalExamResource> getMedicalExamById(@PathVariable Long medicalExamId) {
