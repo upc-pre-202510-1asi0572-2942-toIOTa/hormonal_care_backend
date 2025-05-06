@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageService;
 import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
+import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 @RequestMapping(value = "/api/v1/profile/profile", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -29,14 +33,69 @@ public class ProfileController {
         this.supabaseStorageService = supabaseStorageService;
     }
 
-    @PostMapping
-    public ResponseEntity<ProfileResource> createProfile(@RequestBody CreateProfileResource resource){
-        var createProfileCommand = CreateProfileCommandFromResourceAssembler.toCommandFromResource(resource);
-        var profile = profileCommandService.handle(createProfileCommand);
-        if(profile.isEmpty()) return ResponseEntity.badRequest().build();
-        var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
-        return new ResponseEntity<>(profileResource, HttpStatus.CREATED);
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProfileResource> createProfile(
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("gender") String gender,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("birthday") String birthday,
+            @RequestParam("userId") Long userId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            // Verificar si el archivo está vacío
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+    
+            // Subir el archivo y obtener la URL
+            String image = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
+    
+            // Si la URL es nula o vacía, devolver un error
+            if (image == null || image.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+    
+            // Convertir el string de fecha a un objeto Date
+            Date birthdayDate;
+            try {
+                birthdayDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthday);
+            } catch (ParseException e) {
+                return ResponseEntity.badRequest().build();
+            }
+    
+            // Crear el comando con la URL de la imagen
+            var createProfileCommand = new CreateProfileCommand(
+                    firstName,
+                    lastName,
+                    gender,
+                    phoneNumber,
+                    image,  // URL de la imagen subida
+                    birthdayDate,
+                    userId
+            );
+    
+            var profile = profileCommandService.handle(createProfileCommand);
+            if(profile.isEmpty()) return ResponseEntity.badRequest().build();
+            var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
+            return new ResponseEntity<>(profileResource, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Log detallado del error
+            System.err.println("Error creating profile: " + e.getMessage());
+            if (e.getCause() != null) {
+                System.err.println("Caused by: " + e.getCause().getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ProfileResource(null, null, null, null, null, null, null)); // Adapta según la estructura de tu ProfileResource
+        }
+
     }
+
+    @PostMapping("/test")
+public ResponseEntity<String> testEndpoint() {
+    return ResponseEntity.ok("Endpoint funcionando correctamente");
+}
 
     @GetMapping("/userId/exists/{userId}")
     public ResponseEntity<Boolean> doesProfileExistByUserId(@PathVariable Long userId) {
