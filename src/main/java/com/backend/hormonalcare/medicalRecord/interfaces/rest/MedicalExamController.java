@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.SupabaseStorageService;
+import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.SupabaseStorageServiceMedicalExam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,9 +32,9 @@ public class MedicalExamController {
 
     private final MedicalExamCommandService medicalExamCommandService;
     private final MedicalExamQueryService medicalExamQueryService;
-    private final SupabaseStorageService supabaseStorageService;
+    private final SupabaseStorageServiceMedicalExam supabaseStorageService;
 
-    public MedicalExamController(SupabaseStorageService supabaseStorageService,MedicalExamCommandService medicalExamCommandService, MedicalExamQueryService medicalExamQueryService) {
+    public MedicalExamController(SupabaseStorageServiceMedicalExam supabaseStorageService,MedicalExamCommandService medicalExamCommandService, MedicalExamQueryService medicalExamQueryService) {
         this.supabaseStorageService = supabaseStorageService;
         this.medicalExamCommandService = medicalExamCommandService;
         this.medicalExamQueryService = medicalExamQueryService;
@@ -50,6 +50,12 @@ public class MedicalExamController {
         try {
             // Verificar si el archivo está vacío
             if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            // Check file size limit (2MB)
+            final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+            if (file.getSize() > MAX_FILE_SIZE) {
                 return ResponseEntity.badRequest().body(null);
             }
 
