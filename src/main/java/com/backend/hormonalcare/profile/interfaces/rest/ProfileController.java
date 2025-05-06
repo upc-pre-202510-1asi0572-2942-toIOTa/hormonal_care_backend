@@ -88,6 +88,18 @@ public class ProfileController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
 
+            // Obtener el perfil actual para eliminar la imagen antigua
+            var currentProfile = profileQueryService.handle(new GetProfileByIdQuery(profileId));
+            if (currentProfile.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String oldImageUrl = currentProfile.get().getImage();
+            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                String oldImagePath = oldImageUrl.replace(supabaseStorageService.getProperties().getUrl() + "/storage/v1/object/public/" + supabaseStorageService.getProperties().getBucket() + "/", "");
+                supabaseStorageService.deleteFile(oldImagePath);
+            }
+
             // Crear el comando para actualizar la imagen del perfil
             var updateProfileImageCommand = UpdateProfileImageCommandFromResourceAssembler.toCommandFromUrl(profileId, url);
             var updateProfileImage = profileCommandService.handle(updateProfileImageCommand);

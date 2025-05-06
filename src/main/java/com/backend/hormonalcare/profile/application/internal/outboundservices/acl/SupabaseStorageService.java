@@ -55,6 +55,25 @@ public class SupabaseStorageService {
         return properties.getUrl() + "/storage/v1/object/public/" + properties.getBucket() + "/" + uniqueFileName;
     }
 
+    public void deleteFile(String filePath) throws IOException {
+        Request request = new Request.Builder()
+                .url(properties.getUrl() + "/storage/v1/object/" + properties.getBucket() + "/" + filePath)
+                .addHeader("apikey", properties.getKey())
+                .addHeader("Authorization", "Bearer " + properties.getKey())
+                .delete()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Failed to delete file: " + response);
+            }
+        }
+    }
+
+    public SupabaseProperties getProperties() {
+        return this.properties;
+    }
+
 }
 
 
