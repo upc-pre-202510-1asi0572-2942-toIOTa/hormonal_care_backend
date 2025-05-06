@@ -10,4 +10,8 @@ public class UpdateProfileImageCommandFromResourceAssembler {
                 resource.image()
         );
     }
+
+    public static UpdateProfileImageCommand toCommandFromUrl(Long profileId, String imageUrl) {
+        return new UpdateProfileImageCommand(profileId, imageUrl);
+    }
 }

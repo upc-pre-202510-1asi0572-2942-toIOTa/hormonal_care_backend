@@ -10,18 +10,25 @@ import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfilePhone
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.infrastructure.persistence.jpa.repositories.ProfileRepository;
+import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class ProfileCommandServiceImpl implements ProfileCommandService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
-    public ProfileCommandServiceImpl(ProfileRepository profileRepository, UserRepository userRepository) {
+    private final SupabaseStorageService supabaseStorageService;
+
+    public ProfileCommandServiceImpl(ProfileRepository profileRepository, UserRepository userRepository, SupabaseStorageService supabaseStorageService) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.supabaseStorageService = supabaseStorageService;
     }
+
     @Override
     public Optional<Profile> handle(CreateProfileCommand command) {
         User user = userRepository.findById(command.userId()).orElseThrow(() -> new IllegalArgumentException("User with id " + command.userId() + " does not exist"));
@@ -33,7 +40,20 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
         if (profileRepository.existsByUserId(command.userId())) {
             throw new IllegalArgumentException("User with id " + command.userId() + " already has a profile");
         }
-        var profile = new Profile(command, user);
+
+        // Handle image upload if provided
+        String imageUrl = null;
+        if (command.image() != null && !command.image().isEmpty()) {
+            try {
+                // Generate a unique file name for the image
+                String uniqueFileName = UUID.randomUUID().toString() + "-" + command.image().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+                imageUrl = supabaseStorageService.uploadFile(command.image().getBytes(), uniqueFileName);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Error uploading image for user with id " + command.userId(), e);
+            }
+        }
+
+        var profile = new Profile(command, user, imageUrl);
         profileRepository.save(profile);
         return Optional.of(profile);
     }

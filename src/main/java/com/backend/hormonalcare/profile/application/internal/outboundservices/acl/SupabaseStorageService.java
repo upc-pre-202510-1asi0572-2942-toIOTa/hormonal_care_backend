@@ -1,4 +1,4 @@
-package com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl;
+package com.backend.hormonalcare.profile.application.internal.outboundservices.acl;
 
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-@Component("medicalRecordSupabaseStorageService")
+@Component("profileSupabaseStorageService")
 public class SupabaseStorageService {
     private final OkHttpClient client = new OkHttpClient();
     private final SupabaseProperties properties;
@@ -22,7 +22,7 @@ public class SupabaseStorageService {
     }
 
     public String uploadFile(byte[] fileData, String originalFileName) throws IOException {
-        String uniqueFileName = UUID.randomUUID() + "-" + originalFileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        String uniqueFileName = "profile-images/" + UUID.randomUUID() + "-" + originalFileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
 
         // Redimensionar la imagen a 64x64 píxeles
         ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);

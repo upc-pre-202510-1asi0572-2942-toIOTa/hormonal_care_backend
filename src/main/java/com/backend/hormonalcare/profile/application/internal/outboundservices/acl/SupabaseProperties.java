@@ -1,9 +1,9 @@
-package com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl;
+package com.backend.hormonalcare.profile.application.internal.outboundservices.acl;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@Component("medicalRecordSupabaseProperties")
+@Component("profileSupabaseProperties")
 @ConfigurationProperties(prefix = "supabase")
 public class SupabaseProperties {
     private String url;
