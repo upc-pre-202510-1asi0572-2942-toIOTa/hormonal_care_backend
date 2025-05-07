@@ -137,14 +137,14 @@ public class MedicalExamController {
         return ResponseEntity.ok(medicalExamResource);
     }
 
-    @PutMapping(value = "/{medicalExamId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MedicalExamResource> updateMedicalExam(@PathVariable Long medicalExamId, @RequestBody UpdateMedicalExamResource updateMedicalExamResource) {
-        var updateMedicalExamCommand = UpdateMedicalExamCommandFromResourceAssembler.toCommandFromResource(medicalExamId, updateMedicalExamResource);
-        var updatedMedicalExam = medicalExamCommandService.handle(updateMedicalExamCommand);
-        if (updatedMedicalExam.isEmpty()) return ResponseEntity.badRequest().build();
-        var medicalExamResource = MedicalExamResourceFromEntityAssembler.toResourceFromEntity(updatedMedicalExam.get());
-        return ResponseEntity.ok(medicalExamResource);
-    }
+    // @PutMapping(value = "/{medicalExamId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // public ResponseEntity<MedicalExamResource> updateMedicalExam(@PathVariable Long medicalExamId, @RequestBody UpdateMedicalExamResource updateMedicalExamResource) {
+    //     var updateMedicalExamCommand = UpdateMedicalExamCommandFromResourceAssembler.toCommandFromResource(medicalExamId, updateMedicalExamResource);
+    //     var updatedMedicalExam = medicalExamCommandService.handle(updateMedicalExamCommand);
+    //     if (updatedMedicalExam.isEmpty()) return ResponseEntity.badRequest().build();
+    //     var medicalExamResource = MedicalExamResourceFromEntityAssembler.toResourceFromEntity(updatedMedicalExam.get());
+    //     return ResponseEntity.ok(medicalExamResource);
+    // }
 
     @PutMapping(value = "/{medicalExamId}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalExamResource> updateMedicalExamFile(@PathVariable Long medicalExamId, @RequestParam("file") MultipartFile file) {
