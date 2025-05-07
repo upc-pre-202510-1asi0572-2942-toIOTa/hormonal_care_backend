@@ -34,14 +34,15 @@ public Optional<MedicalExam> handle(CreateMedicalExamCommand command) {
     @Override
     public Optional<MedicalExam> handle(UpdateMedicalExamCommand command) {
         var id = command.id();
-        if (!medicalExamRepository.existsById(id)) {
-            throw new IllegalArgumentException("MedicalExam with id " + command.id() + " does not exist");
-        }
-        MedicalRecord medicalRecord = medicalRecordRepository.findById(command.medicalRecordId()).orElseThrow(() -> new RuntimeException("MedicalRecord no existe"));
-        var result = medicalExamRepository.findById(id);
-        var medicalExamToUpdate = result.get();
+        var existingMedicalExam = medicalExamRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("MedicalExam with id " + id + " does not exist"));
+
+        MedicalRecord medicalRecord = medicalRecordRepository.findById(command.medicalRecordId())
+                .orElseThrow(() -> new RuntimeException("MedicalRecord no existe"));
+
+        existingMedicalExam.updateInformation(command.url(), command.typeMedicalExam(), medicalRecord);
+
         try {
-            var updatedMedicalExam = medicalExamRepository.save(medicalExamToUpdate.updateInformation(command.url(), command.typeMedicalExam(), medicalRecord));
+            var updatedMedicalExam = medicalExamRepository.save(existingMedicalExam);
             return Optional.of(updatedMedicalExam);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while updating medicalExam: " + e.getMessage());

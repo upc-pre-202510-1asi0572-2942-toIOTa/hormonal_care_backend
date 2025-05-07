@@ -137,12 +137,65 @@ public class MedicalExamController {
         return ResponseEntity.ok(medicalExamResource);
     }
 
-    @PutMapping("/{medicalExamId}")
+    @PutMapping(value = "/{medicalExamId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalExamResource> updateMedicalExam(@PathVariable Long medicalExamId, @RequestBody UpdateMedicalExamResource updateMedicalExamResource) {
         var updateMedicalExamCommand = UpdateMedicalExamCommandFromResourceAssembler.toCommandFromResource(medicalExamId, updateMedicalExamResource);
         var updatedMedicalExam = medicalExamCommandService.handle(updateMedicalExamCommand);
         if (updatedMedicalExam.isEmpty()) return ResponseEntity.badRequest().build();
         var medicalExamResource = MedicalExamResourceFromEntityAssembler.toResourceFromEntity(updatedMedicalExam.get());
         return ResponseEntity.ok(medicalExamResource);
+    }
+
+    @PutMapping(value = "/{medicalExamId}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MedicalExamResource> updateMedicalExamFile(@PathVariable Long medicalExamId, @RequestParam("file") MultipartFile file) {
+        try {
+            // Verificar si el archivo está vacío
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Subir el nuevo archivo y obtener la URL
+            String newUrl = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
+
+            // Si la URL es nula o vacía, devolver un error
+            if (newUrl == null || newUrl.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+
+            // Obtener el examen médico actual para eliminar el archivo antiguo
+            var currentMedicalExam = medicalExamQueryService.handle(new GetMedicalExamByIdQuery(medicalExamId));
+            if (currentMedicalExam.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String oldFileUrl = currentMedicalExam.get().getUrl();
+            if (oldFileUrl != null && !oldFileUrl.isEmpty()) {
+                String oldFilePath = oldFileUrl.replace(supabaseStorageService.getProperties().getUrl() + "/storage/v1/object/public/" + supabaseStorageService.getProperties().getBucket() + "/", "");
+                supabaseStorageService.deleteFile(oldFilePath);
+            }
+
+            // Crear el recurso para actualizar el examen médico
+            var updateResource = new UpdateMedicalExamResource(
+                newUrl,
+                currentMedicalExam.get().getTypeMedicalExam(),
+                currentMedicalExam.get().getUploadDate(),
+                currentMedicalExam.get().getMedicalRecord().getId()
+            );
+
+            // Usar el assembler para construir el comando
+            var updateCommand = UpdateMedicalExamCommandFromResourceAssembler.toCommandFromResource(medicalExamId, updateResource);
+
+            var updatedMedicalExam = medicalExamCommandService.handle(updateCommand);
+            if (updatedMedicalExam.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+
+            var resource = MedicalExamResourceFromEntityAssembler.toResourceFromEntity(updatedMedicalExam.get());
+            return ResponseEntity.ok(resource);
+
+        } catch (IOException e) {
+            e.printStackTrace(); // O usa un logger
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
