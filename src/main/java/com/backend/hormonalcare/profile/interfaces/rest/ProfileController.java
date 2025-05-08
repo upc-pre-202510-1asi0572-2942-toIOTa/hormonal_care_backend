@@ -41,19 +41,11 @@ public class ProfileController {
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam("birthday") String birthday,
             @RequestParam("userId") Long userId,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            // Verificar si el archivo está vacío
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body(null);
-            }
-
-            // Subir el archivo y obtener la URL
-            String image = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
-
-            // Si la URL es nula o vacía, devolver un error
-            if (image == null || image.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            String image = null;
+            if (file != null && !file.isEmpty()) {
+                image = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
             }
 
             // Convertir el string de fecha a un objeto Date

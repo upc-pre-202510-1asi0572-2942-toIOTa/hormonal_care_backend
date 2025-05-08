@@ -26,6 +26,10 @@ public class SupabaseStorageServiceProfile {
     }
 
     public String uploadFile(byte[] fileData, String originalFileName) throws IOException {
+        if (fileData == null || originalFileName == null || originalFileName.isEmpty()) {
+            return null; // Retorna null si no se proporciona un archivo
+        }
+
         // Removed logging statements for cleaner code
 
         // Validar el tamaño del archivo (2MB máximo)
