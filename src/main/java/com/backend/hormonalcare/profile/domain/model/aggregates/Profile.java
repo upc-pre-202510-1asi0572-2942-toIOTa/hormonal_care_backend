@@ -16,7 +16,7 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     @Embedded
     @Column()
     private PersonName name;
-
+// 
     @Embedded
     private Gender gender;
 

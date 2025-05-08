@@ -10,8 +10,10 @@ import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfilePhone
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.infrastructure.persistence.jpa.repositories.ProfileRepository;
-import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageService;
+import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageServiceProfile;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.io.IOException;
@@ -19,11 +21,12 @@ import java.util.UUID;
 
 @Service
 public class ProfileCommandServiceImpl implements ProfileCommandService {
+    private static final Logger logger = LoggerFactory.getLogger(ProfileCommandServiceImpl.class);
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
-    private final SupabaseStorageService supabaseStorageService;
+    private final SupabaseStorageServiceProfile supabaseStorageService;
 
-    public ProfileCommandServiceImpl(ProfileRepository profileRepository, UserRepository userRepository, SupabaseStorageService supabaseStorageService) {
+    public ProfileCommandServiceImpl(ProfileRepository profileRepository, UserRepository userRepository, SupabaseStorageServiceProfile supabaseStorageService) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.supabaseStorageService = supabaseStorageService;
@@ -42,19 +45,10 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
         }
 
         // Handle image upload if provided
-        String imageUrl = null;
-        if (command.image() != null && !command.image().isEmpty()) {
-            try {
-                // Generate a unique file name for the image
-                String uniqueFileName = UUID.randomUUID().toString() + "-" + command.image().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-                imageUrl = supabaseStorageService.uploadFile(command.image().getBytes(), uniqueFileName);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Error uploading image for user with id " + command.userId(), e);
-            }
-        }
-
-        var profile = new Profile(command, user, imageUrl);
+        
+        var profile = new Profile(command, user);
         profileRepository.save(profile);
+        logger.info("Profile created successfully for user with id: " + command.userId());
         return Optional.of(profile);
     }
 

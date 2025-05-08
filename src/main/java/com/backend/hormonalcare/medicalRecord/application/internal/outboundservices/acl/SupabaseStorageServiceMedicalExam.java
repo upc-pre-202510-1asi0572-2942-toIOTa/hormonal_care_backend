@@ -36,7 +36,7 @@ public class SupabaseStorageServiceMedicalExam {
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.') + 1).toLowerCase();
         switch (fileExtension) {
             case "jpg":
-            case "jpeg":
+            // case "jpeg":
                 contentType = "image/jpeg";
                 break;
             case "png":

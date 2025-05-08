@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageService;
+import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageServiceProfile;
 import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
 
@@ -21,13 +21,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RestController
-@RequestMapping(value = "/api/v1/profile/profile", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/profile", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProfileController {
     private final ProfileCommandService profileCommandService;
     private final ProfileQueryService profileQueryService;
-    private final SupabaseStorageService supabaseStorageService;
+    private final SupabaseStorageServiceProfile supabaseStorageService;
 
-    public ProfileController(ProfileCommandService profileCommandService, ProfileQueryService profileQueryService, SupabaseStorageService supabaseStorageService) {
+    public ProfileController(ProfileCommandService profileCommandService, ProfileQueryService profileQueryService, SupabaseStorageServiceProfile supabaseStorageService) {
         this.profileCommandService = profileCommandService;
         this.profileQueryService = profileQueryService;
         this.supabaseStorageService = supabaseStorageService;
@@ -45,17 +45,17 @@ public class ProfileController {
         try {
             // Verificar si el archivo está vacío
             if (file.isEmpty()) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.badRequest().body(null);
             }
-    
+
             // Subir el archivo y obtener la URL
             String image = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
-    
+
             // Si la URL es nula o vacía, devolver un error
             if (image == null || image.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
-    
+
             // Convertir el string de fecha a un objeto Date
             Date birthdayDate;
             try {
@@ -63,7 +63,7 @@ public class ProfileController {
             } catch (ParseException e) {
                 return ResponseEntity.badRequest().build();
             }
-    
+
             // Crear el comando con la URL de la imagen
             var createProfileCommand = new CreateProfileCommand(
                     firstName,
@@ -74,20 +74,17 @@ public class ProfileController {
                     birthdayDate,
                     userId
             );
-    
+
             var profile = profileCommandService.handle(createProfileCommand);
-            if(profile.isEmpty()) return ResponseEntity.badRequest().build();
+            if (profile.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
             var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
             return new ResponseEntity<>(profileResource, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Log detallado del error
-            System.err.println("Error creating profile: " + e.getMessage());
-            if (e.getCause() != null) {
-                System.err.println("Caused by: " + e.getCause().getMessage());
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ProfileResource(null, null, null, null, null, null, null)); // Adapta según la estructura de tu ProfileResource
+        }  catch (Exception e) {
+            e.printStackTrace(); // O usa un logger
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
     }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component("profileSupabaseProperties")
 @ConfigurationProperties(prefix = "supabase")
-public class SupabaseProperties {
+public class SupabasePropertiesProfile {
     private String url;
     private String key;
     private String bucket;
