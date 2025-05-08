@@ -7,6 +7,7 @@ import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileComma
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileImageCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfilePhoneNumberCommand;
+import com.backend.hormonalcare.profile.domain.model.commands.DeleteProfileImageCommand;
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.infrastructure.persistence.jpa.repositories.ProfileRepository;
@@ -96,5 +97,24 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
         } catch (Exception e) {
             throw new IllegalArgumentException("Error updating profile with id "+ id);
         }
+    }
+
+    @Override
+    public Optional<Void> handle(DeleteProfileImageCommand command) {
+        var profile = profileRepository.findById(command.getProfileId())
+                .orElseThrow(() -> new IllegalArgumentException("Profile with id " + command.getProfileId() + " does not exist"));
+
+        if (profile.getImage() != null && !profile.getImage().isEmpty()) {
+            String imagePath = profile.getImage().replace(supabaseStorageService.getProperties().getUrl() + "/storage/v1/object/public/" + supabaseStorageService.getProperties().getBucket() + "/", "");
+            try {
+                supabaseStorageService.deleteFile(imagePath);
+                profile.upsetImage(null);
+                profileRepository.save(profile);
+            } catch (IOException e) {
+                throw new RuntimeException("Error deleting profile image: " + e.getMessage(), e);
+            }
+        }
+
+        return Optional.empty();
     }
 }

@@ -4,6 +4,7 @@ import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileComma
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfileImageCommand;
 import com.backend.hormonalcare.profile.domain.model.commands.UpdateProfilePhoneNumberCommand;
+import com.backend.hormonalcare.profile.domain.model.commands.DeleteProfileImageCommand;
 
 import java.util.Optional;
 
@@ -12,4 +13,5 @@ public interface ProfileCommandService {
     Optional<Profile> handle(UpdateProfilePhoneNumberCommand command);
     Optional<Profile> handle(UpdateProfileImageCommand command);
     Optional<Profile> handle(UpdateProfileCommand command);
+    Optional<Void> handle(DeleteProfileImageCommand command);
 }

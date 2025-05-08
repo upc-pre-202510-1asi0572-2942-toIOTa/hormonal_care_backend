@@ -93,6 +93,10 @@ public class SupabaseStorageServiceProfile {
     }
 
     public void deleteFile(String filePath) throws IOException {
+        if (filePath == null || filePath.isEmpty()) {
+            throw new IllegalArgumentException("File path cannot be null or empty");
+        }
+
         Request request = new Request.Builder()
                 .url(properties.getUrl() + "/storage/v1/object/" + properties.getBucket() + "/" + filePath)
                 .addHeader("apikey", properties.getKey())

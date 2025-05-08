@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.backend.hormonalcare.profile.application.internal.outboundservices.acl.SupabaseStorageServiceProfile;
 import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
 import com.backend.hormonalcare.profile.domain.model.commands.CreateProfileCommand;
+import com.backend.hormonalcare.profile.domain.model.commands.DeleteProfileImageCommand;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -173,6 +174,18 @@ public ResponseEntity<String> testEndpoint() {
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(updateProfilePhoneNumber.get());
         return ResponseEntity.ok(profileResource);
 
+    }
+
+    @DeleteMapping(value = "/{profileId}/image")
+    public ResponseEntity<Void> deleteProfileImage(@PathVariable Long profileId) {
+        try {
+            var deleteProfileImageCommand = new DeleteProfileImageCommand(profileId);
+            profileCommandService.handle(deleteProfileImageCommand);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace(); // O usa un logger
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }
