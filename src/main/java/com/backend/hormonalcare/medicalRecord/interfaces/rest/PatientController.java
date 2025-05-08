@@ -2,17 +2,22 @@ package com.backend.hormonalcare.medicalRecord.interfaces.rest;
 
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.*;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.PatientRecordId;
-import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.PatientRecordId;
+import com.backend.hormonalcare.medicalRecord.domain.model.commands.*;
 import com.backend.hormonalcare.medicalRecord.domain.model.valueobjects.ProfileId;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientCommandService;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientQueryService;
+import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.ExternalProfileService;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.resources.*;
 import com.backend.hormonalcare.medicalRecord.interfaces.rest.transform.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
+import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.SupabaseStorageServiceTypeUser;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,32 +26,76 @@ import java.util.stream.Collectors;
 public class PatientController {
     private final PatientCommandService patientCommandService;
     private final PatientQueryService patientQueryService;
+    private final SupabaseStorageServiceTypeUser supabaseStorageService;
 
-    public PatientController(PatientCommandService patientCommandService, PatientQueryService patientQueryService) {
+    public PatientController(PatientCommandService patientCommandService, PatientQueryService patientQueryService, SupabaseStorageServiceTypeUser supabaseStorageService) {
         this.patientCommandService = patientCommandService;
         this.patientQueryService = patientQueryService;
+        this.supabaseStorageService = supabaseStorageService;
     }
 
-    @PostMapping
-    public ResponseEntity<PatientResource> createPatient(@RequestBody CreatePatientResource resource) {
-        var createPatientCommand = CreatePatientCommandFromResourceAssembler.toCommandFromResource(resource);
-        var optionalPatient = patientCommandService.handle(createPatientCommand);
-        if (optionalPatient.isPresent()) {
-            var patient = optionalPatient.get();
-            if (patient.getPatientRecordId().isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-
-            var getPatientByPatientRecordIdQuery = new GetPatientByPatientRecordIdQuery(new PatientRecordId(patient.getPatientRecordId()));
-            var patientQueryResult = patientQueryService.handle(getPatientByPatientRecordIdQuery);
-            if (patientQueryResult.isEmpty()) return ResponseEntity.badRequest().build();
-            var patientResource = PatientResourceFromEntityAssembler.toResourceFromEntity(patientQueryResult.get());
-            return new ResponseEntity<>(patientResource, HttpStatus.CREATED);
-        } else {
-            return ResponseEntity.badRequest().build();
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<PatientWithProfileResource> createPatient(
+        @RequestParam("firstName") String firstName,
+        @RequestParam("lastName") String lastName,
+        @RequestParam("gender") String gender,
+        @RequestParam("phoneNumber") String phoneNumber,
+        @RequestParam("birthday") String birthday,
+        @RequestParam("userId") Long userId,
+        @RequestParam("typeOfBlood") String typeOfBlood,
+        @RequestParam(value = "personalHistory", required = false) String personalHistory,
+        @RequestParam(value = "familyHistory", required = false) String familyHistory,
+        @RequestParam(value = "doctorId", required = false) Long doctorId,
+        @RequestParam(value = "file", required = false) MultipartFile file) {
+    try {
+        String image = null;
+        if (file != null && !file.isEmpty()) {
+            image = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
         }
-    }
 
+        Date birthdayDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthday);
+
+        var createPatientCommand = new CreatePatientCommand(
+                firstName,
+                lastName,
+                gender,
+                phoneNumber,
+                image,
+                birthdayDate,
+                userId,
+                typeOfBlood,
+                personalHistory,
+                familyHistory,
+                doctorId
+        );
+
+        var patientOptional = patientCommandService.handle(createPatientCommand);
+        if (patientOptional.isEmpty()) return ResponseEntity.badRequest().build();
+
+        var patient = patientOptional.get();
+        var patientWithProfileResource = new PatientWithProfileResource(
+                    patient.getId(),
+                    firstName + " " + lastName,
+                    image,
+                    gender,
+                    phoneNumber,
+                    birthday,
+                    typeOfBlood,
+                    personalHistory,
+                    familyHistory,
+                    doctorId,
+                    patient.getProfileId()
+                );
+        return new ResponseEntity<>(patientWithProfileResource, HttpStatus.CREATED);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+}
+
+
+
+    
 
     @GetMapping("/{patientId}/profile-id")
     public ResponseEntity<Long> getProfileIdByPatientId(@PathVariable Long patientId) {

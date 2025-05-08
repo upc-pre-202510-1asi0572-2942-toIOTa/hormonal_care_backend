@@ -1,6 +1,7 @@
 package com.backend.hormonalcare.medicalRecord.interfaces.rest;
 
 import com.backend.hormonalcare.medicalRecord.domain.model.commands.UpdateDoctorCommand;
+import com.backend.hormonalcare.medicalRecord.domain.model.commands.CreateDoctorCommand;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetAllDoctorsQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetAllMedicalAppointmentQuery;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.GetDoctorByDoctorRecordIdQuery;
@@ -26,11 +27,19 @@ import com.backend.hormonalcare.medicalRecord.application.internal.outboundservi
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.SupabaseStorageServiceTypeUser;
+
 
 @RestController
 @RequestMapping(value = "/api/v1/doctor/doctor", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,30 +47,76 @@ public class DoctorController {
     private final DoctorCommandService doctorCommandService;
     private final DoctorQueryService doctorQueryService;
     private final ExternalProfileService externalProfileService;
+    private final SupabaseStorageServiceTypeUser supabaseStorageService;
 
-    public DoctorController(DoctorCommandService doctorCommandService, DoctorQueryService doctorQueryService, ExternalProfileService externalProfileService) {
+    public DoctorController(DoctorCommandService doctorCommandService, DoctorQueryService doctorQueryService, ExternalProfileService externalProfileService, SupabaseStorageServiceTypeUser supabaseStorageService) {
         this.doctorCommandService = doctorCommandService;
         this.doctorQueryService = doctorQueryService;
         this.externalProfileService = externalProfileService;
+        this.supabaseStorageService = supabaseStorageService;
     }
 
-    @PostMapping
-    public ResponseEntity<DoctorResource> createDoctor(@RequestBody CreateDoctorResource resource){
-        var createDoctorCommand = CreateDoctorCommandFromResourceAssembler.toCommandFromResource(resource);
-        var optionalDoctor = doctorCommandService.handle(createDoctorCommand);
-        if (optionalDoctor.isPresent()) {
-            var doctor = optionalDoctor.get();
-            if (doctor.getDoctorRecordId().isEmpty()) {
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DoctorWithProfileResource> createDoctor(
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("gender") String gender,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("birthday") String birthday,
+            @RequestParam("userId") Long userId,
+            @RequestParam("professionalIdentificationNumber") Long professionalIdentificationNumber,
+            @RequestParam("subSpecialty") String subSpecialty,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            String image = null;
+            if (file != null && !file.isEmpty()) {
+                image = supabaseStorageService.uploadFile(file.getBytes(), file.getOriginalFilename());
+            }
+
+            // Convertir el string de fecha a un objeto Date
+            Date birthdayDate;
+            try {
+                birthdayDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthday);
+            } catch (ParseException e) {
                 return ResponseEntity.badRequest().build();
             }
 
-            var getDoctorByDoctorRecordIdQuery = new GetDoctorByDoctorRecordIdQuery(new DoctorRecordId(doctor.getDoctorRecordId()));
-            var doctorQueryResult = doctorQueryService.handle(getDoctorByDoctorRecordIdQuery);
-            if (doctorQueryResult.isEmpty()) return ResponseEntity.badRequest().build();
-            var doctorResource = DoctorResourceFromEntityAssembler.toResourceFromEntity(doctorQueryResult.get());
-            return new ResponseEntity<>(doctorResource, HttpStatus.CREATED);
-        } else {
-            return ResponseEntity.badRequest().build();
+            // Crear el comando con la URL de la imagen
+            var createDoctorCommand = new CreateDoctorCommand(
+                    firstName,
+                    lastName,
+                    gender,
+                    phoneNumber,
+                    image,  // URL de la imagen subida
+                    birthdayDate,
+                    userId,
+                    professionalIdentificationNumber,
+                    subSpecialty
+            );
+
+            var doctorOptional = doctorCommandService.handle(createDoctorCommand);
+            if (doctorOptional.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            var doctor = doctorOptional.get();
+            var doctorWithProfileResource = new DoctorWithProfileResource(
+                    doctor.getId(),
+                    firstName + " " + lastName,
+                    image,
+                    gender,
+                    phoneNumber,
+                    birthday,
+                    professionalIdentificationNumber,
+                    subSpecialty,
+                    doctor.getProfileId(),
+                    doctor.getDoctorRecordId()
+            );
+
+            return new ResponseEntity<>(doctorWithProfileResource, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace(); // O usa un logger
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
