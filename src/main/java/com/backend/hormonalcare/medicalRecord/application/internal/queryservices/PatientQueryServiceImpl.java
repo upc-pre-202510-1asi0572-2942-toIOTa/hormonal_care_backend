@@ -1,5 +1,6 @@
 package com.backend.hormonalcare.medicalRecord.application.internal.queryservices;
 
+import com.backend.hormonalcare.medicalRecord.application.internal.outboundservices.acl.ExternalProfileService;
 import com.backend.hormonalcare.medicalRecord.domain.model.aggregates.Patient;
 import com.backend.hormonalcare.medicalRecord.domain.model.queries.*;
 import com.backend.hormonalcare.medicalRecord.domain.services.PatientQueryService;
@@ -11,9 +12,12 @@ import java.util.Optional;
 @Service
 public class PatientQueryServiceImpl implements PatientQueryService {
     private final PatientRepository patientRepository;
+    private final ExternalProfileService externalProfileService;
 
-    public PatientQueryServiceImpl(PatientRepository patientRepository) {
+
+    public PatientQueryServiceImpl(PatientRepository patientRepository, ExternalProfileService externalProfileService) {
         this.patientRepository = patientRepository;
+        this.externalProfileService = externalProfileService;
     }
 
     @Override
@@ -41,6 +45,19 @@ public class PatientQueryServiceImpl implements PatientQueryService {
     @Override
     public List<Patient> handle(GetAllPatientsByDoctorIdQuery query) {
         return patientRepository.findByDoctor(query.doctorId());
+    }
+
+    @Override
+    public List<Patient> handle(GetAllPatientsQuery query) {
+        var patients = patientRepository.findAll();
+        patients.forEach(patient -> {
+            var profileDetailsOptional = externalProfileService.fetchProfileDetails(patient.getProfileId());
+            profileDetailsOptional.ifPresent(profileDetails -> {
+                // Opcional: Log o procesamiento adicional
+                System.out.println("Profile Details for Patient ID " + patient.getId() + ": " + profileDetails.getFullName());
+            });
+        });
+        return patients;
     }
 }
 
