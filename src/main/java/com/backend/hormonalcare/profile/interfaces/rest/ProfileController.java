@@ -1,6 +1,7 @@
 package com.backend.hormonalcare.profile.interfaces.rest;
 
 import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByIdQuery;
+import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByNameQuery;
 import com.backend.hormonalcare.profile.domain.model.queries.GetProfileByUserIdQuery;
 import com.backend.hormonalcare.profile.domain.services.ProfileCommandService;
 import com.backend.hormonalcare.profile.domain.services.ProfileQueryService;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/profile", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -83,7 +85,7 @@ public class ProfileController {
     }
 
     @PostMapping("/test")
-public ResponseEntity<String> testEndpoint() {
+    public ResponseEntity<String> testEndpoint() {
     return ResponseEntity.ok("Endpoint funcionando correctamente");
 }
 
@@ -110,6 +112,16 @@ public ResponseEntity<String> testEndpoint() {
         if(profile.isEmpty()) return ResponseEntity.notFound().build();
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
         return ResponseEntity.ok(profileResource);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProfileResource>> getProfilesByName(@RequestParam String name) {
+        var query = new GetProfileByNameQuery(name);
+        var profiles = profileQueryService.handle(query);
+        var resources = profiles.stream()
+                .map(ProfileResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+        return ResponseEntity.ok(resources);
     }
 
     @PutMapping("/{profileId}/full-update")
