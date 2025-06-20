@@ -1,7 +1,6 @@
 package com.backend.hormonalcare.profile.infrastructure.persistence.jpa.repositories;
 
 import com.backend.hormonalcare.profile.domain.model.aggregates.Profile;
-import com.backend.hormonalcare.profile.domain.model.valueobjects.PersonName;
 import com.backend.hormonalcare.profile.domain.model.valueobjects.PhoneNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
